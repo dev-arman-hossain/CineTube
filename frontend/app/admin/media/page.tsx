@@ -18,7 +18,7 @@ export default function MediaCatalogPage() {
   const fetchMedia = async () => {
     setIsLoading(true);
     try {
-      const response = await MediaService.getMedia({ searchTerm: searchQuery || undefined });
+      const response = await MediaService.getMedia({ q: searchQuery || undefined });
       setMediaList(response.data);
     } catch (error) {
       toast.error('Failed to fetch media catalog');

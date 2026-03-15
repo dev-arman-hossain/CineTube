@@ -22,7 +22,7 @@ export default function MoviesPage() {
         const response = await MediaService.getMedia({
           type: 'MOVIE',
           genre: selectedGenre !== 'All' ? selectedGenre : undefined,
-          searchTerm: searchQuery || undefined,
+          q: searchQuery || undefined,
         });
         setMovies(response.data);
       } catch (error) {

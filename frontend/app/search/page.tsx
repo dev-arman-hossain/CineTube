@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaService } from '@/services/mediaService';
 import { Media } from '@/types';
 import MediaGrid from '@/components/media/MediaGrid';
@@ -9,33 +9,65 @@ import { Search as SearchIcon, Loader2 } from 'lucide-react';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get('q') || '';
   
   const [results, setResults] = useState<Media[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState(query);
 
   const fetchResults = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await MediaService.getMedia({ q: searchTerm });
       setResults(response.data);
     } catch (error) {
       console.error('Search failed:', error);
+      setResults([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Sync Input with URL (Initial load)
   useEffect(() => {
-    fetchResults(query);
+    setInputValue(query);
   }, [query]);
+
+  // Debounced Search Effect
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (inputValue !== query) {
+        const params = new URLSearchParams(searchParams);
+        if (inputValue.trim()) {
+          params.set('q', inputValue);
+        } else {
+          params.delete('q');
+        }
+        router.push(`/search?${params.toString()}`);
+      }
+      
+      if (inputValue.trim()) {
+        fetchResults(inputValue);
+      } else {
+        setResults([]);
+        setIsLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [inputValue, searchParams, router, query]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
       fetchResults(inputValue);
-      // Update URL without reload if needed, but fetch works for now
     }
   };
 

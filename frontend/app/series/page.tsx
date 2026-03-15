@@ -21,7 +21,7 @@ export default function SeriesPage() {
         const response = await MediaService.getMedia({
           type: 'SERIES',
           genre: selectedGenre !== 'All' ? selectedGenre : undefined,
-          searchTerm: searchQuery || undefined,
+          q: searchQuery || undefined,
         });
         setSeries(response.data);
       } catch (error) {
