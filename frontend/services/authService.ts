@@ -1,0 +1,14 @@
+import apiClient from './apiClient';
+import { AuthResponse } from '../types';
+
+export const AuthService = {
+  register: async (data: any): Promise<AuthResponse> => {
+    const response = await apiClient.post('/auth/register', data);
+    return response.data.data;
+  },
+
+  login: async (data: any): Promise<AuthResponse> => {
+    const response = await apiClient.post('/auth/login', data);
+    return response.data.data;
+  },
+};

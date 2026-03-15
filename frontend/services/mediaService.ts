@@ -2,6 +2,11 @@ import apiClient from './apiClient';
 import { Media } from '../types';
 
 export const MediaService = {
+  createMedia: async (data: any) => {
+    const response = await apiClient.post('/media', data);
+    return response.data;
+  },
+
   getMedia: async (params?: any) => {
     const response = await apiClient.get('/media', { params });
     return response.data;
