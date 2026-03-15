@@ -1,13 +1,14 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from '../generated/prisma/client.js';
+import bcrypt from 'bcrypt';
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('Seeding initial media data...');
+  console.log('Seeding initial data...');
 
   const mediaData = [
     {
@@ -18,7 +19,7 @@ async function main() {
       director: 'Christopher Nolan',
       cast: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Elliot Page'],
       platform: ['Netflix', 'Amazon Prime'],
-      posterUrl: 'https://image.tmdb.org/t/p/w500/9gk7Fn9sVAsS9Te6996U0Z9bP9u.jpg',
+      posterUrl: 'https://image.tmdb.org/t/p/w500/o0jO0S79UMST9777YqS07vS3N6u.jpg',
       streamingLink: 'https://www.netflix.com/title/70131314',
       type: 'MOVIE',
       contentType: 'FREE',
@@ -31,7 +32,7 @@ async function main() {
       director: 'Vince Gilligan',
       cast: ['Bryan Cranston', 'Aaron Paul', 'Anna Gunn'],
       platform: ['Netflix'],
-      posterUrl: 'https://image.tmdb.org/t/p/w500/ggws376QoYhN_H8Cizn7S0_N7.jpg',
+      posterUrl: 'https://image.tmdb.org/t/p/w500/ztkUQvHnd79fv6rnESSj3gS7CGS.jpg',
       streamingLink: 'https://www.netflix.com/title/70143836',
       type: 'SERIES',
       contentType: 'FREE',
@@ -83,7 +84,7 @@ async function main() {
       director: 'Eric Kripke',
       cast: ['Karl Urban', 'Jack Quaid', 'Antony Starr'],
       platform: ['Amazon Prime'],
-      posterUrl: 'https://image.tmdb.org/t/p/w500/stTEycfY9bdj6z9sZp0Y9vSTH9F.jpg',
+      posterUrl: 'https://image.tmdb.org/t/p/w500/7Y6Sndmub9mYcr9Xj6v977vI84I.jpg',
       streamingLink: 'https://www.amazon.com/The-Boys-Season-1/dp/B07QNJCMCK',
       type: 'SERIES',
       contentType: 'PREMIUM',
@@ -102,6 +103,36 @@ async function main() {
       console.log(`Created media: ${media.title}`);
     } else {
       console.log(`Skipping existing media: ${media.title}`);
+    }
+  }
+
+  console.log('Seeding users...');
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  
+  const users = [
+    {
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
+    {
+      name: 'Test User',
+      email: 'user@example.com',
+      password: hashedPassword,
+      role: 'USER',
+    }
+  ];
+
+  for (const user of users) {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: user.email },
+    });
+    if (!existingUser) {
+      await prisma.user.create({ data: user as any });
+      console.log(`Created user: ${user.email}`);
+    } else {
+      console.log(`Skipping existing user: ${user.email}`);
     }
   }
 

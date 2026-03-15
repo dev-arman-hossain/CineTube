@@ -1,16 +1,23 @@
 import { Server } from 'http';
 import app from './app';
-import config from './config';
+import config from './config/index';
 
 let server: Server;
 
 async function main() {
   try {
+    console.log('Attempting to start server...');
     server = app.listen(config.port, () => {
       console.log(`CineTube server listening on port ${config.port}`);
     });
+    server.on('error', (err) => {
+      console.error('Server error event:', err);
+    });
+    server.on('close', () => {
+      console.log('Server closed');
+    });
   } catch (err) {
-    console.log(err);
+    console.error('Catch block error:', err);
   }
 }
 

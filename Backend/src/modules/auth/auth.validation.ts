@@ -28,9 +28,17 @@ const resetPasswordValidationSchema = z.object({
   }),
 });
 
+const updateProfileValidationSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    avatar: z.string().optional(),
+  }),
+});
+
 export const AuthValidation = {
   registerValidationSchema,
   loginValidationSchema,
   forgotPasswordValidationSchema,
   resetPasswordValidationSchema,
+  updateProfileValidationSchema,
 };

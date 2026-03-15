@@ -16,11 +16,12 @@ const register = async (payload: any) => {
     throw new AppError(httpStatus.CONFLICT, 'User already exists');
   }
 
-  const hashedPassword = await bcrypt.hash(payload.password, 10);
+  const { confirmPassword, ...userData } = payload;
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
 
   const newUser = await prisma.user.create({
     data: {
-      ...payload,
+      ...userData,
       password: hashedPassword,
     },
     select: {
@@ -92,8 +93,25 @@ const getMe = async (email: string) => {
 // Note: Guide asks to add fields to User model. Let's assume we can add them or fix the schema later.
 // For now, I'll implement the logic assuming fields exist or I will add them to schema.
 
+const updateProfile = async (email: string, payload: any) => {
+  const result = await prisma.user.update({
+    where: { email },
+    data: payload,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      avatar: true,
+      createdAt: true,
+    },
+  });
+  return result;
+};
+
 export const AuthService = {
   register,
   login,
   getMe,
+  updateProfile,
 };

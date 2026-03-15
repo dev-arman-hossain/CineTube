@@ -7,6 +7,15 @@ export const MediaService = {
     return response.data;
   },
 
+  uploadMedia: async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.post('/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
   getMedia: async (params?: any) => {
     const response = await apiClient.get('/media', { params });
     return response.data;

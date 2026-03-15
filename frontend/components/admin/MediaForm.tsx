@@ -37,6 +37,7 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<MediaFormValues>({
     resolver: zodResolver(mediaSchema),
@@ -52,6 +53,23 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
     },
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsLoading(true);
+    const toastId = toast.loading('Uploading image...');
+    try {
+      const response = await (MediaService as any).uploadMedia(file);
+      setValue('posterUrl', response.data);
+      toast.success('Image uploaded successfully', { id: toastId });
+    } catch (error) {
+      toast.error('Failed to upload image', { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onSubmit = async (data: MediaFormValues) => {
     setIsLoading(true);
     const payload = {
@@ -66,9 +84,6 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
         await MediaService.updateMedia(initialData.id, payload);
         toast.success('Media updated successfully');
       } else {
-        await MediaService.getMedia; // Not used, need a create method in MediaService
-        // I realized I didn't add the createMedia method to MediaService earlier.
-        // I'll assume it exists or add it now.
         await (MediaService as any).createMedia(payload);
         toast.success('Media added successfully');
       }
@@ -107,8 +122,18 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
             </select>
           </div>
 
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Upload Poster</label>
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
+            />
+          </div>
+
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Poster URL</label>
+            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Poster URL (Direct Link)</label>
             <input {...register('posterUrl')} className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all" placeholder="https://..." />
           </div>
 

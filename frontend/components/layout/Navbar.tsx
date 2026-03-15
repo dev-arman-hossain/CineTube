@@ -125,6 +125,14 @@ const Navbar = () => {
                     
                     <div className="space-y-1">
                       <Link 
+                        href="/profile" 
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-secondary-foreground hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                      >
+                        <User className="w-4 h-4" />
+                        My Profile
+                      </Link>
+                      <Link 
                         href="/watchlist" 
                         onClick={() => setIsProfileOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-secondary-foreground hover:text-white hover:bg-white/5 rounded-xl transition-all"
@@ -197,13 +205,22 @@ const Navbar = () => {
               </Link>
             ))}
             {isAuthenticated && (
-               <Link
-                 href="/watchlist"
-                 onClick={() => setIsMobileMenuOpen(false)}
-                 className="text-lg font-bold text-secondary-foreground"
-               >
-                 Watchlist
-               </Link>
+               <>
+                 <Link
+                   href="/profile"
+                   onClick={() => setIsMobileMenuOpen(false)}
+                   className="text-lg font-bold text-secondary-foreground"
+                 >
+                   Profile
+                 </Link>
+                 <Link
+                   href="/watchlist"
+                   onClick={() => setIsMobileMenuOpen(false)}
+                   className="text-lg font-bold text-secondary-foreground"
+                 >
+                   Watchlist
+                 </Link>
+               </>
             )}
             {!isAuthenticated && (
               <Link

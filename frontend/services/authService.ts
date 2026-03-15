@@ -11,4 +11,9 @@ export const AuthService = {
     const response = await apiClient.post('/auth/login', data);
     return response.data.data;
   },
+
+  updateProfile: async (data: any): Promise<any> => {
+    const response = await apiClient.patch('/auth/profile', data);
+    return response.data.data;
+  },
 };

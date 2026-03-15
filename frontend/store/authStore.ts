@@ -10,6 +10,7 @@ interface AuthState {
   setAuth: (data: AuthResponse) => void;
   logout: () => void;
   fetchMe: () => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -48,6 +49,9 @@ export const useAuthStore = create<AuthState>()(
           }
           set({ user: null, token: null, isAuthenticated: false });
         }
+      },
+      updateUser: (user: User) => {
+        set({ user });
       },
     }),
     {

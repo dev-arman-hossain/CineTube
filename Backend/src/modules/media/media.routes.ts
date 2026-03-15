@@ -4,6 +4,7 @@ import { MediaController } from './media.controller';
 import { MediaValidation } from './media.validation';
 import auth from '../../middlewares/auth.middleware';
 import requireRole from '../../middlewares/role.middleware';
+import { upload } from '../../utils/cloudinary';
 
 const router = Router();
 
@@ -11,6 +12,14 @@ const router = Router();
 router.get('/', MediaController.getAllMedia);
 router.get('/featured', MediaController.getFeaturedMedia);
 router.get('/:id', MediaController.getMediaById);
+
+router.post(
+  '/upload',
+  auth,
+  requireRole('ADMIN'),
+  upload.single('image'),
+  MediaController.uploadMedia,
+);
 
 // Admin routes
 router.post(

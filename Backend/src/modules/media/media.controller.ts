@@ -67,6 +67,14 @@ const deleteMedia = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const uploadMedia = catchAsync(async (req: Request, res: Response) => {
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Media uploaded successfully',
+    data: (req as any).file?.path,
+  });
+});
+
 export const MediaController = {
   createMedia,
   getAllMedia,
@@ -74,4 +82,5 @@ export const MediaController = {
   getMediaById,
   updateMedia,
   deleteMedia,
+  uploadMedia,
 };

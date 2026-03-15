@@ -19,5 +19,11 @@ router.post(
 );
 
 router.get('/me', auth, AuthController.getMe);
+router.patch(
+  '/profile',
+  auth,
+  validateRequest(AuthValidation.updateProfileValidationSchema),
+  AuthController.updateProfile,
+);
 
 export const AuthRoutes = router;
