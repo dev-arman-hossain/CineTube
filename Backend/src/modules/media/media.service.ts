@@ -47,9 +47,13 @@ const getAllMedia = async (query: any) => {
   }
 
   if (q) {
+    const searchString = q as string;
     where.OR = [
-      { title: { contains: q as string, mode: 'insensitive' } },
-      { director: { contains: q as string, mode: 'insensitive' } },
+      { title: { contains: searchString, mode: 'insensitive' } },
+      { director: { contains: searchString, mode: 'insensitive' } },
+      { synopsis: { contains: searchString, mode: 'insensitive' } },
+      { genre: { hasSome: [searchString] } },
+      { cast: { hasSome: [searchString] } },
     ];
   }
 
