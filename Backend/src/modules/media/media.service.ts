@@ -1,0 +1,140 @@
+import { Prisma, MediaType, ContentType } from '../../../generated/prisma/client';
+import { prisma } from '../../lib/prisma';
+
+const createMedia = async (payload: any) => {
+  const result = await prisma.media.create({
+    data: payload,
+  });
+  return result;
+};
+
+const getAllMedia = async (query: any) => {
+  const {
+    page = 1,
+    limit = 12,
+    genre,
+    platform,
+    type,
+    minRating,
+    year,
+    sort,
+    q,
+  } = query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+  const take = Number(limit);
+
+  const where: Prisma.MediaWhereInput = {};
+
+  if (genre) {
+    where.genre = { has: genre as string };
+  }
+
+  if (platform) {
+    where.platform = { has: platform as string };
+  }
+
+  if (type) {
+    where.type = type as MediaType;
+  }
+
+  if (minRating) {
+    where.avgRating = { gte: Number(minRating) };
+  }
+
+  if (year) {
+    where.releaseYear = Number(year);
+  }
+
+  if (q) {
+    where.OR = [
+      { title: { contains: q as string, mode: 'insensitive' } },
+      { director: { contains: q as string, mode: 'insensitive' } },
+    ];
+  }
+
+  let orderBy: Prisma.MediaOrderByWithRelationInput = { createdAt: 'desc' };
+
+  if (sort === 'highest_rated') {
+    orderBy = { avgRating: 'desc' };
+  } else if (sort === 'most_reviewed') {
+    orderBy = { totalRatings: 'desc' };
+  } else if (sort === 'latest') {
+    orderBy = { createdAt: 'desc' };
+  }
+
+  const [data, total] = await Promise.all([
+    prisma.media.findMany({
+      where,
+      skip,
+      take,
+      orderBy,
+    }),
+    prisma.media.count({ where }),
+  ]);
+
+  return {
+    data,
+    meta: {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      totalPages: Math.ceil(total / Number(limit)),
+    },
+  };
+};
+
+const getFeaturedMedia = async () => {
+  const result = await prisma.media.findMany({
+    take: 8,
+    orderBy: {
+      avgRating: 'desc',
+    },
+  });
+  return result;
+};
+
+const getMediaById = async (id: string) => {
+  const result = await prisma.media.findUnique({
+    where: { id },
+    include: {
+      reviews: {
+        where: { status: 'PUBLISHED' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return result;
+};
+
+const updateMedia = async (id: string, payload: any) => {
+  const result = await prisma.media.update({
+    where: { id },
+    data: payload,
+  });
+  return result;
+};
+
+const deleteMedia = async (id: string) => {
+  const result = await prisma.media.delete({
+    where: { id },
+  });
+  return result;
+};
+
+export const MediaService = {
+  createMedia,
+  getAllMedia,
+  getFeaturedMedia,
+  getMediaById,
+  updateMedia,
+  deleteMedia,
+};
