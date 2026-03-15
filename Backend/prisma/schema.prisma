@@ -7,10 +7,117 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+}
+
+enum ContentType {
+  FREE
+  PREMIUM
+}
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  UNPUBLISHED
+}
+
 model User {
-    id        String   @id @default(uuid())
-    email     String   @unique
-    name      String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews   Review[]
+  likes     Like[]
+  comments  Comment[]
+  watchlist Watchlist[]
+}
+
+model Media {
+  id            String      @id @default(uuid())
+  title         String
+  synopsis      String
+  genre         String[]
+  releaseYear   Int
+  director      String
+  cast          String[]
+  platform      String[]
+  posterUrl     String?
+  streamingLink String?
+  type          MediaType
+  contentType   ContentType @default(FREE)
+  avgRating     Float       @default(0)
+  totalRatings  Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  reviews   Review[]
+  watchlist Watchlist[]
+}
+
+model Review {
+  id         String       @id @default(uuid())
+  rating     Int
+  content    String
+  tags       String[]
+  hasSpoiler Boolean      @default(false)
+  status     ReviewStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  userId  String
+  mediaId String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media   Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  likes    Like[]
+  comments Comment[]
+}
+
+model Like {
+  id       String @id @default(uuid())
+  userId   String
+  reviewId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  userId   String
+  reviewId String
+  parentId String?
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review   Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+}
+
+model Watchlist {
+  id      String @id @default(uuid())
+  userId  String
+  mediaId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaId])
 }
