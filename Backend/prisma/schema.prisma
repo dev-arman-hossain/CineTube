@@ -112,9 +112,10 @@ model Comment {
 }
 
 model Watchlist {
-  id      String @id @default(uuid())
-  userId  String
-  mediaId String
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  userId    String
+  mediaId   String
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)

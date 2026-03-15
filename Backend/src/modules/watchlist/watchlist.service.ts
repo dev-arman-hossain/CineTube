@@ -1,0 +1,45 @@
+import { prisma } from '../../lib/prisma';
+import AppError from '../../errors/AppError';
+import httpStatus from 'http-status';
+
+const toggleWatchlist = async (userId: string, mediaId: string) => {
+  const existing = await prisma.watchlist.findUnique({
+    where: {
+      userId_mediaId: {
+        userId,
+        mediaId,
+      },
+    },
+  });
+
+  if (existing) {
+    await prisma.watchlist.delete({
+      where: { id: existing.id },
+    });
+    return { added: false };
+  } else {
+    await prisma.watchlist.create({
+      data: {
+        userId,
+        mediaId,
+      },
+    });
+    return { added: true };
+  }
+};
+
+const getMyWatchlist = async (userId: string) => {
+  const result = await prisma.watchlist.findMany({
+    where: { userId },
+    include: {
+      media: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  return result;
+};
+
+export const WatchlistService = {
+  toggleWatchlist,
+  getMyWatchlist,
+};

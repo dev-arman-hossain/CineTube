@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { MediaRoutes } from '../modules/media/media.routes';
+import { ReviewRoutes } from '../modules/review/review.routes';
+import { CommentRoutes } from '../modules/comment/comment.routes';
+import { WatchlistRoutes } from '../modules/watchlist/watchlist.routes';
+import { AdminRoutes } from '../modules/admin/admin.routes';
 
 const router = Router();
 
@@ -12,6 +16,22 @@ const moduleRoutes = [
   {
     path: '/media',
     route: MediaRoutes,
+  },
+  {
+    path: '/reviews',
+    route: ReviewRoutes,
+  },
+  {
+    path: '/comments',
+    route: CommentRoutes,
+  },
+  {
+    path: '/watchlist',
+    route: WatchlistRoutes,
+  },
+  {
+    path: '/admin',
+    route: AdminRoutes,
   },
 ];
 
