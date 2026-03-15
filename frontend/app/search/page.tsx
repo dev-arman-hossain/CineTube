@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaService } from '@/services/mediaService';
 import { Media } from '@/types';
 import MediaGrid from '@/components/media/MediaGrid';
 import { Search as SearchIcon, Loader2 } from 'lucide-react';
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
@@ -98,5 +98,17 @@ export default function SearchPage() {
         <MediaGrid items={results} isLoading={isLoading} />
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="md:px-12 px-4 py-12 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
