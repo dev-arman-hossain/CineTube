@@ -1,20 +1,20 @@
+import { PrismaClient } from '../generated/prisma/index.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-import { prisma } from '../src/lib/prisma';
+const prisma = new PrismaClient();
 
-async function main() {
+async function checkDb() {
   try {
-    const allMedia = await prisma.media.findMany({
-      take: 5
-    });
-    console.log('Media Sample:', JSON.stringify(allMedia, null, 2));
-    
-    const count = await prisma.media.count();
-    console.log('Total Media Count:', count);
+    const mediaCount = await prisma.media.count();
+    const userCount = await prisma.user.count();
+    console.log(`Media count in DB: ${mediaCount}`);
+    console.log(`User count in DB: ${userCount}`);
   } catch (error) {
-    console.error('Error checking DB:', error);
+    console.error('Error connecting to DB:', error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-main();
+checkDb();

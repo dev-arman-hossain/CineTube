@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from '../generated/prisma/client.js';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -108,7 +108,7 @@ async function main() {
 
   console.log('Seeding users...');
   const hashedPassword = await bcrypt.hash('password123', 10);
-  
+
   const users = [
     {
       name: 'Admin User',

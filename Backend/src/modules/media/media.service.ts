@@ -1,4 +1,4 @@
-import { Prisma, MediaType, ContentType } from '../../../generated/prisma/client';
+import { Prisma, MediaType, ContentType } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
 const createMedia = async (payload: any) => {
