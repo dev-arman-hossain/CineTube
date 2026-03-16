@@ -121,8 +121,12 @@ const Navbar = () => {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-full bg-white/5 border border-white/10 hover:border-primary/40 transition-all group"
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-rose-600 flex items-center justify-center text-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform">
-                  {user?.name?.[0].toUpperCase()}
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-rose-600 flex items-center justify-center text-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/10">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user?.name?.[0].toUpperCase()
+                  )}
                 </div>
                 <div className="hidden lg:block text-left">
                    <p className="text-[10px] font-black text-muted-foreground uppercase leading-none mb-0.5">Account</p>

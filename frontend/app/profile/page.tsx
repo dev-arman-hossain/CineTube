@@ -6,11 +6,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
-import { User, Camera, Loader2, Save, ArrowLeft } from 'lucide-react';
+import { User, Camera, Loader2, Save, ArrowLeft, ImagePlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { AuthService } from '@/services/authService';
+import { MediaService } from '@/services/mediaService';
 import Link from 'next/link';
+import { useRef } from 'react';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -22,7 +24,9 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
   const { user, isAuthenticated, updateUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -56,6 +60,32 @@ export default function ProfilePage() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      // 1. Upload to server
+      const uploadRes = await MediaService.uploadMedia(file);
+      const avatarUrl = uploadRes.url;
+      
+      // 2. Update profile with new avatar URL
+      const updatedUser = await AuthService.updateProfile({ avatar: avatarUrl });
+      
+      // 3. Sync store
+      updateUser(updatedUser);
+      setValue('avatar', avatarUrl);
+      
+      toast.success('Profile picture updated!');
+    } catch (error: any) {
+      toast.error('Failed to upload image');
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -79,7 +109,19 @@ export default function ProfilePage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex flex-col items-center gap-4 mb-8">
               <div className="relative group">
-                <div className="w-32 h-32 rounded-full bg-primary/20 border-2 border-white/10 flex items-center justify-center overflow-hidden">
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  className="hidden" 
+                  accept="image/*"
+                />
+                <div className="w-32 h-32 rounded-full bg-primary/20 border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-2xl relative">
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center backdrop-blur-sm">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  )}
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
@@ -88,13 +130,14 @@ export default function ProfilePage() {
                 </div>
                 <button 
                   type="button"
-                  className="absolute bottom-0 right-0 p-2.5 bg-primary text-white rounded-full shadow-lg hover:bg-rose-700 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 p-3 bg-primary text-white rounded-full shadow-xl hover:bg-rose-700 transition-all hover:scale-110 active:scale-95 z-20 border-2 border-black"
                   title="Upload Avatar"
                 >
                   <Camera className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Profile Picture</p>
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Profile Identity</p>
             </div>
 
             <div className="space-y-6">
