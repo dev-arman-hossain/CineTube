@@ -62,7 +62,7 @@ const Navbar = () => {
       )}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-12">
+        <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-3 group">
             <motion.div 
               whileHover={{ rotate: 10, scale: 1.1 }}
@@ -96,24 +96,27 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="hidden md:flex items-center gap-2">
-             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <Link href="/search" className="p-2.5 text-secondary-foreground hover:text-white transition-colors bg-white/5 rounded-full border border-transparent hover:border-white/10">
-                  <Search className="w-5 h-5" />
+        <div className="flex items-center gap-5">
+          <div className="hidden md:flex items-center gap-3">
+             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link 
+                  href="/search" 
+                  className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/[0.03] hover:bg-white/[0.08] rounded-full border border-white/5 hover:border-white/20 group"
+                >
+                  <Search className="w-4.5 h-4.5 group-hover:scale-110 transition-transform" />
                 </Link>
              </motion.div>
              <motion.button 
-               whileHover={{ scale: 1.1 }} 
-               whileTap={{ scale: 0.9 }}
-               className="p-2.5 text-secondary-foreground hover:text-white transition-colors bg-white/5 rounded-full border border-transparent hover:border-white/10 relative"
+               whileHover={{ scale: 1.05 }} 
+               whileTap={{ scale: 0.95 }}
+               className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/[0.03] hover:bg-white/[0.08] rounded-full border border-white/5 hover:border-white/20 relative group"
               >
-               <Bell className="w-5 h-5" />
-               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-black" />
+               <Bell className="w-4.5 h-4.5 group-hover:rotate-12 transition-transform" />
+               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-[#141414] shadow-sm animate-pulse" />
              </motion.button>
           </div>
 
-          <div className="h-8 w-px bg-white/10 hidden md:block" />
+          <div className="h-6 w-px bg-white/10 hidden md:block mx-1" />
 
           {isAuthenticated ? (
             <div className="relative" ref={profileRef}>
