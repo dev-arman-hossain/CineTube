@@ -120,6 +120,14 @@ const getMediaById = async (id: string) => {
 };
 
 const updateMedia = async (id: string, payload: any) => {
+  const media = await prisma.media.findUnique({
+    where: { id },
+  });
+
+  if (!media) {
+    throw new Error('Media not found');
+  }
+
   const result = await prisma.media.update({
     where: { id },
     data: payload,

@@ -32,7 +32,7 @@ export const MediaService = {
   },
 
   updateMedia: async (id: string, data: Partial<Media>) => {
-    const response = await apiClient.patch(`/media/${id}`, data);
+    const response = await apiClient.put(`/media/${id}`, data);
     return response.data;
   },
 
