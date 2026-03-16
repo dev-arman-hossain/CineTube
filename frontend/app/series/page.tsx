@@ -2,6 +2,8 @@ import { MediaService } from '@/services/mediaService';
 import MediaGrid from '@/components/media/MediaGrid';
 import MediaFilters from '@/components/media/MediaFilters';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SeriesPage({
   searchParams,
 }: {

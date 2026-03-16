@@ -1,6 +1,8 @@
 import { MediaService } from '@/services/mediaService';
 import HomeView from '@/components/home/HomeView';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const [featuredRes, trendingRes, newRes] = await Promise.all([
     MediaService.getFeaturedMedia(),

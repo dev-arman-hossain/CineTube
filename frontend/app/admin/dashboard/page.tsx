@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
 import { Users, Film, Star, TrendingUp, Edit2 } from 'lucide-react';
