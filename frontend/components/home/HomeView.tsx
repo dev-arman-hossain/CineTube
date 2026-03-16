@@ -99,7 +99,7 @@ export default function HomeView({ featured, trending, newReleases }: HomeViewPr
                   className="group relative"
                 >
                    <Link href={`/media/${media.id}`}>
-                      <div className="aspect-[2/3] bg-neutral-900 rounded-2xl overflow-hidden relative border border-white/5 shadow-2xl">
+                      <div className="aspect-[2/3] bg-neutral-900 rounded-2xl overflow-hidden relative border border-white/[0.12] shadow-[0_8px_30px_rgb(0,0,0,0.5)] group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-shadow duration-500">
                         <img 
                           src={media.posterUrl || 'https://via.placeholder.com/300x450'} 
                           alt={media.title}

@@ -55,7 +55,7 @@ const RegisterPage = () => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass-dark border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl"
+      className="premium-card rounded-3xl p-8 md:p-12"
     >
       <div className="text-center space-y-2 mb-8">
         <h1 className="text-3xl font-bold font-outfit tracking-tight">Create Account</h1>

@@ -50,7 +50,7 @@ const LoginPage = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-dark border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl"
+      className="premium-card rounded-3xl p-8 md:p-12"
     >
       <div className="text-center space-y-2 mb-8">
         <div className="inline-flex bg-primary/20 p-3 rounded-xl mb-4">
