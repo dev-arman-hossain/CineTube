@@ -55,59 +55,80 @@ const Navbar = () => {
   return (
     <nav
       className={cn(
-        'fixed top-0 z-50 w-full transition-all duration-300 px-4 md:px-12 py-4',
-        isScrolled ? 'glass-dark bg-black/80' : 'bg-transparent'
+        'fixed top-0 z-50 w-full transition-all duration-500 px-4 md:px-12 py-4',
+        isScrolled 
+          ? 'bg-black/60 backdrop-blur-xl border-b border-white/5 shadow-2xl' 
+          : 'bg-transparent'
       )}
     >
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-primary p-1.5 rounded-lg group-hover:scale-110 transition-transform">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-12">
+          <Link href="/" className="flex items-center gap-3 group">
+            <motion.div 
+              whileHover={{ rotate: 10, scale: 1.1 }}
+              className="bg-primary p-2 rounded-xl group-hover:shadow-lg group-hover:shadow-primary/40 transition-all"
+            >
               <Play className="w-5 h-5 fill-white text-white" />
-            </div>
-            <span className="text-2xl font-bold tracking-tighter text-white">
+            </motion.div>
+            <span className="text-2xl font-black tracking-tighter text-white font-outfit">
               CINE<span className="text-primary">TUBE</span>
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
+                  'text-sm font-bold tracking-wide transition-all hover:text-primary relative group py-2',
                   pathname === link.href ? 'text-primary' : 'text-secondary-foreground'
                 )}
               >
                 {link.name}
+                <motion.span 
+                  initial={false}
+                  animate={{ width: pathname === link.href ? '100%' : '0%' }}
+                  className="absolute bottom-0 left-0 h-0.5 bg-primary rounded-full"
+                />
               </Link>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-1 shrink-0">
-             <Link href="/search" className="p-2 text-secondary-foreground hover:text-white transition-colors">
-               <Search className="w-5 h-5" />
-             </Link>
-             <button className="p-2 text-secondary-foreground hover:text-white transition-colors">
+        <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-2">
+             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Link href="/search" className="p-2.5 text-secondary-foreground hover:text-white transition-colors bg-white/5 rounded-full border border-transparent hover:border-white/10">
+                  <Search className="w-5 h-5" />
+                </Link>
+             </motion.div>
+             <motion.button 
+               whileHover={{ scale: 1.1 }} 
+               whileTap={{ scale: 0.9 }}
+               className="p-2.5 text-secondary-foreground hover:text-white transition-colors bg-white/5 rounded-full border border-transparent hover:border-white/10 relative"
+              >
                <Bell className="w-5 h-5" />
-             </button>
+               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-black" />
+             </motion.button>
           </div>
 
-          <div className="h-6 w-px bg-white/10 hidden md:block mx-1" />
+          <div className="h-8 w-px bg-white/10 hidden md:block" />
 
           {isAuthenticated ? (
             <div className="relative" ref={profileRef}>
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 px-1 py-1 rounded-full bg-white/5 border border-white/10 hover:border-primary/50 transition-all group"
+                className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-full bg-white/5 border border-white/10 hover:border-primary/40 transition-all group"
               >
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs ring-2 ring-transparent group-hover:ring-primary/20">
-                  {user?.name[0].toUpperCase()}
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-rose-600 flex items-center justify-center text-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform">
+                  {user?.name?.[0].toUpperCase()}
                 </div>
-                <ChevronDown className={cn("w-4 h-4 text-secondary-foreground transition-transform", isProfileOpen && "rotate-180")} />
+                <div className="hidden lg:block text-left">
+                   <p className="text-[10px] font-black text-muted-foreground uppercase leading-none mb-0.5">Account</p>
+                   <p className="text-xs font-bold text-white leading-none truncate max-w-[80px]">{user?.name?.split(' ')[0]}</p>
+                </div>
+                <ChevronDown className={cn("w-4 h-4 text-secondary-foreground transition-transform duration-300", isProfileOpen && "rotate-180")} />
               </button>
 
               <AnimatePresence>
@@ -209,24 +230,36 @@ const Navbar = () => {
                  <Link
                    href="/profile"
                    onClick={() => setIsMobileMenuOpen(false)}
-                   className="text-lg font-bold text-secondary-foreground"
+                   className="flex items-center gap-3 text-lg font-bold text-secondary-foreground hover:text-white transition-colors py-2"
                  >
+                   <User className="w-5 h-5" />
                    Profile
                  </Link>
                  <Link
                    href="/watchlist"
                    onClick={() => setIsMobileMenuOpen(false)}
-                   className="text-lg font-bold text-secondary-foreground"
+                   className="flex items-center gap-3 text-lg font-bold text-secondary-foreground hover:text-white transition-colors py-2"
                  >
+                   <Bookmark className="w-5 h-5" />
                    Watchlist
                  </Link>
+                 {user?.role === 'ADMIN' && (
+                   <Link
+                     href="/admin/dashboard"
+                     onClick={() => setIsMobileMenuOpen(false)}
+                     className="flex items-center gap-3 text-lg font-bold text-primary hover:text-rose-400 transition-colors py-2"
+                   >
+                     <Shield className="w-5 h-5" />
+                     Admin Dashboard
+                   </Link>
+                 )}
                </>
             )}
             {!isAuthenticated && (
               <Link
                 href="/login"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-white rounded-xl font-bold mt-4"
+                className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-white rounded-xl font-bold mt-4 shadow-lg shadow-primary/20"
               >
                 Sign In
               </Link>
@@ -234,9 +267,10 @@ const Navbar = () => {
             {isAuthenticated && (
                <button
                  onClick={handleLogout}
-                 className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 text-rose-500 rounded-xl font-bold mt-4 border border-rose-500/20"
+                 className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 text-rose-500 rounded-xl font-bold mt-4 border border-rose-500/10 hover:bg-rose-500/10 transition-all"
                >
-                 Sign Out
+                 <LogOut className="w-5 h-5" />
+                 Logout
                </button>
             )}
           </motion.div>
