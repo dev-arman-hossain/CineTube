@@ -1,4 +1,4 @@
-import { ReviewStatus } from '../../../generated/prisma/client';
+import { ReviewStatus } from '@prisma/client';
 
 import { prisma } from '../../lib/prisma';
 import AppError from '../../errors/AppError';
