@@ -15,4 +15,14 @@ export const AdminAppService = {
     const response = await apiClient.patch(`/admin/users/${userId}/role`, { role });
     return response.data;
   },
+
+  suspendUser: async (userId: string, isSuspended: boolean) => {
+    const response = await apiClient.patch(`/admin/users/${userId}/suspend`, { isSuspended });
+    return response.data;
+  },
+
+  deleteUser: async (userId: string) => {
+    const response = await apiClient.delete(`/admin/users/${userId}`);
+    return response.data;
+  },
 };

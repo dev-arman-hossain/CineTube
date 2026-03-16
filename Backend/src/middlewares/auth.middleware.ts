@@ -33,6 +33,10 @@ const auth = catchAsync(async (req: Request, res: Response, next: NextFunction) 
     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
   }
 
+  if (user.isSuspended) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Your account has been suspended. Please contact support.');
+  }
+
   (req as any).user = decoded as JwtPayload;
   next();
 });

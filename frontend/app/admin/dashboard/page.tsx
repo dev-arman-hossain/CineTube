@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
-import { Users, Film, Star, TrendingUp, Edit2 } from 'lucide-react';
+import { Users, Film, Star, TrendingUp, Edit2, Shield, Power, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { clsx, type ClassValue } from 'clsx';
@@ -48,9 +48,48 @@ export default function AdminDashboardPage() {
     },
   });
 
+  // Suspend/Activate Mutation
+  const suspendMutation = useMutation({
+    mutationFn: async ({ userId, isSuspended }: { userId: string, isSuspended: boolean }) => {
+      return await AdminAppService.suspendUser(userId, isSuspended);
+    },
+    onSuccess: (_, variables) => {
+      toast.success(`User ${variables.isSuspended ? 'suspended' : 'activated'}`);
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+    onError: () => {
+      toast.error('Operation failed');
+    },
+  });
+
+  // Delete Mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return await AdminAppService.deleteUser(userId);
+    },
+    onSuccess: () => {
+      toast.success('User deleted permanently');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+    },
+    onError: () => {
+      toast.error('Failed to delete user');
+    },
+  });
+
   const handleRoleChange = (userId: string, currentRole: string) => {
     const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
     updateRoleMutation.mutate({ userId, newRole });
+  };
+
+  const handleSuspendToggle = (userId: string, currentIsSuspended: boolean) => {
+    suspendMutation.mutate({ userId, isSuspended: !currentIsSuspended });
+  };
+
+  const handleDelete = (userId: string) => {
+    if (window.confirm('Are you absolutely sure? This action cannot be undone.')) {
+      deleteMutation.mutate(userId);
+    }
   };
 
   if (isStatsLoading && !stats) return <div className="text-center py-20 font-black uppercase tracking-widest text-xs animate-pulse">Initializing Dashboard...</div>;
@@ -135,16 +174,42 @@ export default function AdminDashboardPage() {
               </div>
               <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Active Status</span>
+                  <div className={cn(
+                    "w-2 h-2 rounded-full",
+                    user.isSuspended ? "bg-rose-500" : "bg-green-500 animate-pulse"
+                  )} />
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                    {user.isSuspended ? "Suspended" : "Active"}
+                  </span>
                 </div>
-                <button 
-                  onClick={() => handleRoleChange(user.id, user.role)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all border border-white/10"
-                >
-                  <Edit2 className="w-3 h-3" />
-                  Change Role
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleRoleChange(user.id, user.role)}
+                    className="p-2 bg-white/5 rounded-xl border border-white/10 hover:bg-primary transition-all"
+                    title="Change Role"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => handleSuspendToggle(user.id, user.isSuspended)}
+                    className={cn(
+                      "p-2 rounded-xl border transition-all",
+                      user.isSuspended 
+                        ? "bg-green-500/10 text-green-500 border-green-500/20" 
+                        : "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                    )}
+                    title={user.isSuspended ? "Activate" : "Suspend"}
+                  >
+                    <Power className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(user.id)}
+                    className="p-2 bg-white/5 rounded-xl border border-white/10 hover:bg-rose-600 transition-all"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -179,9 +244,17 @@ export default function AdminDashboardPage() {
                     </div>
                   </td>
                   <td className="px-5 md:px-6 py-5">
-                    <span className="flex items-center gap-2 text-[10px] font-black uppercase py-1.5 px-3 rounded-full bg-green-500/10 text-green-500 w-fit border border-green-500/20">
-                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                       Active
+                    <span className={cn(
+                      "flex items-center gap-2 text-[10px] font-black uppercase py-1.5 px-3 rounded-full border w-fit",
+                      user.isSuspended 
+                        ? "bg-rose-500/10 text-rose-500 border-rose-500/20" 
+                        : "bg-green-500/10 text-green-500 border-green-500/20 shadow-sm shadow-green-500/10"
+                    )}>
+                       <div className={cn(
+                         "w-1.5 h-1.5 rounded-full",
+                         user.isSuspended ? "bg-rose-500" : "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]"
+                       )} />
+                       {user.isSuspended ? 'Suspended' : 'Active'}
                     </span>
                   </td>
                   <td className="px-5 md:px-6 py-5">
@@ -202,7 +275,26 @@ export default function AdminDashboardPage() {
                          className="p-2.5 bg-white/5 rounded-xl hover:bg-primary hover:text-white transition-all border border-white/5 shadow-sm"
                          title="Change Role"
                        >
-                         <Edit2 className="w-4 h-4" />
+                         <Shield className="w-4 h-4" />
+                       </button>
+                       <button 
+                         onClick={() => handleSuspendToggle(user.id, user.isSuspended)}
+                         className={cn(
+                           "p-2.5 rounded-xl transition-all border border-white/5 shadow-sm",
+                           user.isSuspended 
+                             ? "bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white" 
+                             : "bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white"
+                         )}
+                         title={user.isSuspended ? "Activate User" : "Suspend User"}
+                       >
+                         <Power className="w-4 h-4" />
+                       </button>
+                       <button 
+                         onClick={() => handleDelete(user.id)}
+                         className="p-2.5 bg-white/5 rounded-xl hover:bg-rose-600 hover:text-white transition-all border border-white/5 shadow-sm"
+                         title="Delete User"
+                       >
+                         <Trash2 className="w-4 h-4" />
                        </button>
                     </div>
                   </td>
