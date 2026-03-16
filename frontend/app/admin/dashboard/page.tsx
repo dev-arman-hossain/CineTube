@@ -1,8 +1,6 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
-import { Users, Film, Star, TrendingUp, MoreVertical, Edit2 } from 'lucide-react';
+import { Users, Film, Star, TrendingUp, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { clsx, type ClassValue } from 'clsx';
@@ -13,40 +11,47 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<any>(null);
-  const [users, setUsers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, usersRes] = await Promise.all([
-          AdminAppService.getStats(),
-          AdminAppService.getAllUsers(),
-        ]);
-        setStats(statsRes.data);
-        setUsers(usersRes.data);
-      } catch (error) {
-        toast.error('Failed to fetch admin data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  // Fetch Stats
+  const { data: stats, isLoading: isStatsLoading } = useQuery({
+    queryKey: ['admin', 'stats'],
+    queryFn: async () => {
+      const resp = await AdminAppService.getStats();
+      return resp.data;
+    },
+  });
 
-  const handleRoleChange = async (userId: string, currentRole: string) => {
-    const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
-    try {
-      await AdminAppService.updateUserRole(userId, newRole);
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+  // Fetch Users
+  const { data: users, isLoading: isUsersLoading } = useQuery({
+    queryKey: ['admin', 'users'],
+    queryFn: async () => {
+      const resp = await AdminAppService.getAllUsers();
+      return resp.data;
+    },
+  });
+
+  // Update Role Mutation
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: string }) => {
+      return await AdminAppService.updateUserRole(userId, newRole);
+    },
+    onSuccess: () => {
       toast.success('User role updated');
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }); // Stats might change (admin count)
+    },
+    onError: () => {
       toast.error('Failed to update role');
-    }
+    },
+  });
+
+  const handleRoleChange = (userId: string, currentRole: string) => {
+    const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
+    updateRoleMutation.mutate({ userId, newRole });
   };
 
-  if (isLoading) return <div className="text-center py-20">Loading dashboard...</div>;
+  if (isStatsLoading && !stats) return <div className="text-center py-20 font-black uppercase tracking-widest text-xs animate-pulse">Initializing Dashboard...</div>;
 
   const statCards = [
     { label: 'Total Users', value: stats?.userCount, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -99,7 +104,9 @@ export default function AdminDashboardPage() {
 
         {/* Mobile View: Card List */}
         <div className="md:hidden divide-y divide-white/5">
-          {users.slice(0, 10).map((user, idx) => (
+          {isUsersLoading && !users ? (
+            <div className="text-center py-10 animate-pulse text-[10px] font-black uppercase tracking-widest">Loading Users...</div>
+          ) : users?.slice(0, 10).map((user: any, idx: number) => (
             <motion.div 
               key={user.id} 
               initial={{ opacity: 0, x: -20 }}
@@ -154,7 +161,9 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {users.slice(0, 10).map((user) => (
+              {isUsersLoading && !users ? (
+                <tr><td colSpan={5} className="text-center py-10 animate-pulse">Loading Users...</td></tr>
+              ) : users?.slice(0, 10).map((user: any) => (
                 <tr key={user.id} className="text-xs md:text-sm hover:bg-white/5 transition-colors group">
                   <td className="px-5 md:px-6 py-5">
                     <div className="flex items-center gap-4">

@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   keywords: ['movies', 'series', 'streaming', 'reviews', 'ratings', 'watchlist'],
 };
 
+import QueryProvider from '@/components/providers/QueryProvider';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -43,7 +45,9 @@ export default function RootLayout({
         />
         <Navbar />
         <main className="flex-grow pt-20">
-          {children}
+          <QueryProvider>
+            {children}
+          </QueryProvider>
         </main>
         <Footer />
       </body>

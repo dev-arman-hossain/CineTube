@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
-import { User, Shield, Edit2, Search, Calendar, Mail, UserCheck } from 'lucide-react';
+import { Shield, Edit2, Search, Calendar, Mail, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
@@ -13,38 +14,39 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchUsers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await AdminAppService.getAllUsers();
-      setUsers(response.data);
-    } catch (error) {
-      toast.error('Failed to fetch users');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Fetch Users
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['admin', 'users'],
+    queryFn: async () => {
+      const resp = await AdminAppService.getAllUsers();
+      return resp.data;
+    },
+  });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const handleRoleChange = async (userId: string, currentRole: string) => {
-    const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
-    try {
-      await AdminAppService.updateUserRole(userId, newRole);
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      toast.success(`User updated to ${newRole}`);
-    } catch (error) {
+  // Update Role Mutation
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: string }) => {
+      return await AdminAppService.updateUserRole(userId, newRole);
+    },
+    onSuccess: () => {
+      toast.success('User updated');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+    },
+    onError: () => {
       toast.error('Failed to update role');
-    }
+    },
+  });
+
+  const handleRoleChange = (userId: string, currentRole: string) => {
+    const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
+    updateRoleMutation.mutate({ userId, newRole });
   };
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = users.filter((u: any) => 
     u.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -84,7 +86,7 @@ export default function UserManagementPage() {
               <div className="text-center py-24 text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Non-identifiable query</div>
             ) : (
               <AnimatePresence mode="popLayout">
-                {filteredUsers.map((user, idx) => (
+                {filteredUsers.map((user: any, idx: number) => (
                   <motion.div 
                     key={user.id} 
                     initial={{ opacity: 0, x: -20 }}
@@ -169,7 +171,7 @@ export default function UserManagementPage() {
                ) : filteredUsers.length === 0 ? (
                   <tr><td colSpan={5} className="text-center py-20 text-muted-foreground uppercase font-black text-xs">No personnel records found</td></tr>
                ) : (
-                filteredUsers.map((user) => (
+                filteredUsers.map((user: any) => (
                   <tr key={user.id} className="text-sm hover:bg-white/[0.02] transition-all group border-l-4 border-l-transparent hover:border-l-primary">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">

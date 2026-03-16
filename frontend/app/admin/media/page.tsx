@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MediaService } from '@/services/mediaService';
 import { Media } from '@/types';
 import { Film, Plus, Search, Edit2, Trash2, ExternalLink, Star } from 'lucide-react';
@@ -9,38 +10,40 @@ import toast from 'react-hot-toast';
 import MediaForm from '@/components/admin/MediaForm';
 
 export default function MediaCatalogPage() {
-  const [mediaList, setMediaList] = useState<Media[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMedia, setEditingMedia] = useState<Media | undefined>(undefined);
 
-  const fetchMedia = async () => {
-    setIsLoading(true);
-    try {
-      const response = await MediaService.getMedia({ q: searchQuery || undefined });
-      setMediaList(response.data);
-    } catch (error) {
-      toast.error('Failed to fetch media catalog');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Fetch Media
+  const { data: mediaList = [], isLoading } = useQuery({
+    queryKey: ['admin', 'media', { q: searchQuery }],
+    queryFn: async () => {
+      const resp = await MediaService.getMedia({
+        q: searchQuery || undefined,
+      });
+      return resp.data;
+    },
+  });
 
-  useEffect(() => {
-    const timer = setTimeout(fetchMedia, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  // Delete Mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await MediaService.deleteMedia(id);
+    },
+    onSuccess: () => {
+      toast.success('Media deleted');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'media'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+    },
+    onError: () => {
+      toast.error('Failed to delete media');
+    },
+  });
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this content?')) return;
-    try {
-      await MediaService.deleteMedia(id);
-      setMediaList(mediaList.filter(m => m.id !== id));
-      toast.success('Media deleted');
-    } catch (error) {
-      toast.error('Failed to delete media');
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleEdit = (media: Media) => {
@@ -87,7 +90,11 @@ export default function MediaCatalogPage() {
           >
             <MediaForm 
               initialData={editingMedia} 
-              onSuccess={() => { setIsFormOpen(false); fetchMedia(); }} 
+              onSuccess={() => { 
+                setIsFormOpen(false); 
+                queryClient.invalidateQueries({ queryKey: ['admin', 'media'] });
+                queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+              }} 
               onCancel={() => setIsFormOpen(false)} 
             />
           </motion.div>
@@ -102,7 +109,7 @@ export default function MediaCatalogPage() {
           ) : mediaList.length === 0 ? (
              <div className="text-center py-20 text-muted-foreground uppercase tracking-widest font-black text-xs">No media found</div>
           ) : (
-            mediaList.map((media, idx) => (
+            mediaList.map((media: Media, idx: number) => (
               <motion.div 
                 key={media.id} 
                 initial={{ opacity: 0, y: 20 }}
@@ -179,7 +186,7 @@ export default function MediaCatalogPage() {
               ) : mediaList.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-20 text-muted-foreground uppercase tracking-widest font-black text-xs">No assets found in catalog</td></tr>
               ) : (
-                mediaList.map((media) => (
+                mediaList.map((media: Media) => (
                   <tr key={media.id} className="text-sm hover:bg-white/[0.03] transition-colors group">
                     <td className="px-8 py-5">
                       <div className="w-14 h-20 bg-neutral-900 rounded-xl overflow-hidden border border-white/10 shadow-lg group-hover:border-primary/50 transition-all duration-300">
