@@ -1,0 +1,56 @@
+[dotenv@17.3.1] injecting env (12) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:11068) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Attempting update with extra fields...
+Update failed as expected: PrismaClientValidationError: 
+Invalid `prisma.media.update()` invocation in
+C:\Users\Win 11\Cinetube\Backend\tmp\test_update_with_extra.ts:19:40
+
+  16 }
+  17 
+  18 console.log(`Attempting update with extra fields...`);
+→ 19 const updated = await prisma.media.update({
+       where: {
+         id: "d695e461-131a-48f8-bc38-979a96a45f15"
+       },
+       data: {
+         title: "Breaking Bad",
+         extraField: "This should fail",
+         ~~~~~~~~~~
+     ?   id?: String | StringFieldUpdateOperationsInput,
+     ?   synopsis?: String | StringFieldUpdateOperationsInput,
+     ?   genre?: MediaUpdategenreInput | String[],
+     ?   releaseYear?: Int | IntFieldUpdateOperationsInput,
+     ?   director?: String | StringFieldUpdateOperationsInput,
+     ?   cast?: MediaUpdatecastInput | String[],
+     ?   platform?: MediaUpdateplatformInput | String[],
+     ?   posterUrl?: String | NullableStringFieldUpdateOperationsInput | Null,
+     ?   streamingLink?: String | NullableStringFieldUpdateOperationsInput | Null,
+     ?   type?: MediaType | EnumMediaTypeFieldUpdateOperationsInput,
+     ?   contentType?: ContentType | EnumContentTypeFieldUpdateOperationsInput,
+     ?   avgRating?: Float | FloatFieldUpdateOperationsInput,
+     ?   totalRatings?: Int | IntFieldUpdateOperationsInput,
+     ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+     ?   updatedAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+     ?   reviews?: ReviewUpdateManyWithoutMediaNestedInput,
+     ?   watchlist?: WatchlistUpdateManyWithoutMediaNestedInput
+       }
+     })
+
+Unknown argument `extraField`. Available options are marked with ?.
+    at throwValidationException (C:\Users\Win 11\Cinetube\Backend\node_modules\@prisma\client\src\runtime\core\errorRendering\throwValidationException.ts:46:9)
+    at Gr.handleRequestError (C:\Users\Win 11\Cinetube\Backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:211:7)
+    at Gr.handleAndLogRequestError (C:\Users\Win 11\Cinetube\Backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:183:12)
+    at Gr.request (C:\Users\Win 11\Cinetube\Backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:152:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async a (C:\Users\Win 11\Cinetube\Backend\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:938:24)
+    at async testUpdateWithExtra (C:\Users\Win 11\Cinetube\Backend\tmp\test_update_with_extra.ts:19:21) {
+  clientVersion: '7.5.0'
+}
