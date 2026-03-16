@@ -12,10 +12,11 @@ import CommentSection from './CommentSection';
 
 interface ReviewSectionProps {
   mediaId: string;
+  onReviewSubmitted?: () => void;
 }
 
-const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+const ReviewSection = ({ mediaId, onReviewSubmitted }: ReviewSectionProps) => {
+  const [reviews, setReviews] = useState<any[]>([]); // Changed to any to support _count
   const [isLoading, setIsLoading] = useState(true);
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
   const { isAuthenticated, user } = useAuthStore();
@@ -29,6 +30,16 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSuccess = () => {
+    // Small delay to ensure DB has committed
+    setTimeout(() => {
+      fetchReviews();
+      if (onReviewSubmitted) {
+        onReviewSubmitted();
+      }
+    }, 500);
   };
 
   useEffect(() => {
@@ -51,7 +62,7 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
       <div className="bg-secondary/20 p-8 rounded-3xl border border-white/5">
         <h3 className="text-xl font-bold font-outfit mb-6">Write a Review</h3>
         {isAuthenticated ? (
-          <ReviewForm mediaId={mediaId} onSuccess={fetchReviews} />
+          <ReviewForm mediaId={mediaId} onSuccess={handleSuccess} />
         ) : (
           <div className="text-center py-6 space-y-4">
              <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto" />
@@ -72,7 +83,7 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
             <p className="text-secondary-foreground italic">No reviews yet. Be the first to share your thoughts!</p>
           </div>
         ) : (
-          reviews.map((review) => (
+          reviews.map((review: any) => (
             <motion.div
               key={review.id}
               initial={{ opacity: 0, y: 10 }}
@@ -113,14 +124,14 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
                      className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
                    >
                      <ThumbsUp className="w-4 h-4" />
-                     {review.rating > 0 && review.rating} Likes
+                     {review._count?.likes || 0} Likes
                    </button>
                    <button 
                      onClick={() => setExpandedReviewId(expandedReviewId === review.id ? null : review.id)}
                      className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-white transition-colors"
                    >
                      <MessageSquare className="w-4 h-4" />
-                     Comments
+                     {review._count?.comments || 0} Comments
                      {expandedReviewId === review.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                    </button>
                 </div>

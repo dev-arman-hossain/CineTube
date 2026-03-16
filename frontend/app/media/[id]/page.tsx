@@ -205,7 +205,7 @@ export default function MediaDetailsPage() {
           {/* User Reviews */}
           <section className="pt-12 border-t border-white/5" id="reviews">
             <h2 className="text-3xl font-black font-outfit tracking-tight mb-8">Audience <span className="text-primary">Reviews</span></h2>
-            <ReviewSection mediaId={id as string} />
+            <ReviewSection mediaId={id as string} onReviewSubmitted={fetchMedia} />
           </section>
         </div>
 

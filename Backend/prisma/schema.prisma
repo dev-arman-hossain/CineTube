@@ -71,7 +71,7 @@ model Review {
   content    String
   tags       String[]
   hasSpoiler Boolean      @default(false)
-  status     ReviewStatus @default(PENDING)
+  status     ReviewStatus @default(PUBLISHED)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 

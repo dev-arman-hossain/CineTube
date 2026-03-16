@@ -29,12 +29,21 @@ const createReview = async (userId: string, payload: any) => {
       userId,
     },
   });
+
+  await recalculateRating(result.mediaId);
+
   return result;
 };
 
-const getAllReviews = async () => {
+const getAllReviews = async (query: any) => {
+  const { mediaId, status = 'PUBLISHED' } = query;
+
+  const where: any = {};
+  if (mediaId) where.mediaId = mediaId;
+  if (status) where.status = status;
+
   const result = await prisma.review.findMany({
-    where: { status: 'PUBLISHED' },
+    where,
     include: {
       user: {
         select: {
@@ -47,6 +56,12 @@ const getAllReviews = async () => {
         select: {
           id: true,
           title: true,
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
         },
       },
     },
@@ -83,14 +98,13 @@ const updateReview = async (id: string, userId: string, payload: any) => {
     throw new AppError(httpStatus.FORBIDDEN, 'You can only update your own reviews');
   }
 
-  if (review.status !== 'PENDING') {
-    throw new AppError(httpStatus.BAD_REQUEST, 'You can only update reviews that are still pending');
-  }
-
   const result = await prisma.review.update({
     where: { id },
     data: payload,
   });
+
+  await recalculateRating(result.mediaId);
+
   return result;
 };
 

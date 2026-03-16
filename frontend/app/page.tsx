@@ -78,10 +78,10 @@ const Home = () => {
                    {featured.avgRating.toFixed(1)}
                  </span>
               </div>
-              <h1 className="text-6xl md:text-8xl font-black mt-4 leading-tight font-outfit uppercase">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mt-4 leading-none font-outfit uppercase line-clamp-3">
                 {featured.title}
               </h1>
-              <p className="text-lg text-secondary-foreground line-clamp-3 mt-4 max-w-lg">
+              <p className="text-base md:text-lg text-secondary-foreground line-clamp-2 md:line-clamp-3 mt-4 max-w-lg">
                 {featured.synopsis}
               </p>
             </motion.div>
