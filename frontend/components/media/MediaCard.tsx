@@ -4,25 +4,32 @@ import Link from 'next/link';
 import { Play, Star, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Media } from '@/types';
+import Image from 'next/image';
 
 interface MediaCardProps {
   media: Media;
 }
 
 const MediaCard = ({ media }: MediaCardProps) => {
+  const posterUrl = media.posterUrl || 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop';
+
   return (
     <motion.div
       whileHover={{ y: -8, scale: 1.02 }}
-      className="group relative aspect-[2/3] bg-neutral-900 rounded-2xl overflow-hidden border border-white/5 cursor-pointer"
+      className="group relative aspect-2/3 bg-neutral-900 rounded-2xl overflow-hidden border border-white/5 cursor-pointer"
     >
       {/* Poster Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-        style={{ backgroundImage: `url(${media.posterUrl || 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop'})` }}
+      <Image
+        src={posterUrl}
+        alt={media.title}
+        fill
+        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        priority={false}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
       />
       
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
 
       {/* Content */}
       <div className="absolute inset-0 p-4 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
@@ -48,7 +55,7 @@ const MediaCard = ({ media }: MediaCardProps) => {
           <div className="flex items-center gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-500 delay-100">
             <Link 
               href={`/media/${media.id}`}
-              className="flex-grow flex items-center justify-center gap-1 py-2 bg-primary text-white text-[10px] font-bold rounded-lg hover:bg-rose-700 transition-all"
+              className="grow flex items-center justify-center gap-1 py-2 bg-primary text-white text-[10px] font-bold rounded-lg hover:bg-rose-700 transition-all"
             >
               <Play className="w-3 h-3 fill-white" />
               Details

@@ -3,6 +3,7 @@
 import { Play, Info, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Media } from '@/types';
 
 interface HomeViewProps {
@@ -22,10 +23,14 @@ export default function HomeView({ featured, trending, newReleases }: HomeViewPr
       {/* Hero Section */}
       {featured && (
         <section className="relative h-[85vh] w-full flex items-center px-4 md:px-12 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10" />
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105"
-            style={{ backgroundImage: `url(${featured.posterUrl || 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop'})` }}
+          <div className="absolute inset-0 bg-linear-to-r from-black via-black/60 to-transparent z-10" />
+          <Image 
+            src={featured.posterUrl || 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop'}
+            alt={featured.title}
+            fill
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 scale-105"
+            priority
+            sizes="100vw"
           />
           
           <div className="relative z-20 max-w-2xl space-y-6">
@@ -77,7 +82,7 @@ export default function HomeView({ featured, trending, newReleases }: HomeViewPr
       )}
 
       {/* Media Rows */}
-      <div className="space-y-16 px-4 md:px-12 mt-[-80px] relative z-30">
+      <div className="space-y-16 px-4 md:px-12 -mt-20 relative z-30">
         {categories.map((category, idx) => (
           <section key={idx} className="space-y-6">
             <div className="flex justify-between items-end">
@@ -99,13 +104,16 @@ export default function HomeView({ featured, trending, newReleases }: HomeViewPr
                   className="group relative"
                 >
                    <Link href={`/media/${media.id}`}>
-                      <div className="aspect-[2/3] bg-neutral-900 rounded-2xl overflow-hidden relative border border-white/[0.12] shadow-[0_8px_30px_rgb(0,0,0,0.5)] group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-shadow duration-500">
-                        <img 
-                          src={media.posterUrl || 'https://via.placeholder.com/300x450'} 
+                      <div className="aspect-2/3 bg-neutral-900 rounded-2xl overflow-hidden relative border border-white/12 shadow-[0_8px_30px_rgb(0,0,0,0.5)] group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-shadow duration-500">
+                        <Image 
+                          src={media.posterUrl || 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop'} 
                           alt={media.title}
+                          fill
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          priority={false}
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                        <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                            <div className="flex items-center justify-between mb-2">
                               <span className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/20 px-2 py-0.5 rounded-full border border-primary/20">
                                 <Star className="w-2.5 h-2.5 fill-primary" />

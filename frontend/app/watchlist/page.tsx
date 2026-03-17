@@ -13,8 +13,15 @@ export default function WatchlistPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -35,6 +42,8 @@ export default function WatchlistPage() {
   }, [isAuthenticated, router]);
 
   const movies = watchlistItems.map(item => item.media);
+
+  if (!mounted) return null;
 
   return (
     <div className="md:px-12 px-4 py-8 space-y-8">

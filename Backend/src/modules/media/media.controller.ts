@@ -68,10 +68,30 @@ const deleteMedia = catchAsync(async (req: Request, res: Response) => {
 });
 
 const uploadMedia = catchAsync(async (req: Request, res: Response) => {
+  const file = (req as any).file;
+  
+  if (!file) {
+    res.status(400).json({
+      success: false,
+      message: 'No file uploaded'
+    });
+    return;
+  }
+
+  const imageUrl = file.path || file.secure_url;
+  
+  if (!imageUrl) {
+    res.status(400).json({
+      success: false,
+      message: 'Failed to get image URL from Cloudinary'
+    });
+    return;
+  }
+
   res.status(httpStatus.OK).json({
     success: true,
     message: 'Media uploaded successfully',
-    data: (req as any).file?.path,
+    data: { url: imageUrl, originalName: file.originalname },
   });
 });
 

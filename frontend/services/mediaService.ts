@@ -40,4 +40,12 @@ export const MediaService = {
     const response = await apiClient.delete(`/media/${id}`);
     return response.data;
   },
+
+  searchTmdb: async (title: string, year?: number) => {
+    const params: any = { title };
+    if (year) params.year = year;
+    const response = await apiClient.get('/media/tmdb-search', { params });
+    return response.data;
+  },
 };
+

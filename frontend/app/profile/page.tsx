@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,7 +11,6 @@ import { User, Camera, Loader2, Save, ArrowLeft, ImagePlus } from 'lucide-react'
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { AuthService } from '@/services/authService';
-import { MediaService } from '@/services/mediaService';
 import Link from 'next/link';
 import { useRef } from 'react';
 
@@ -22,11 +22,17 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, updateUser } = useAuthStore();
+  const { user, isAuthenticated, updateUser, fetchMe } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -42,10 +48,21 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
+    if (!mounted) return;
     if (!isAuthenticated) {
       router.push('/login');
+    } else {
+      // Fetch latest user data on mount
+      fetchMe().catch(() => {
+        router.push('/login');
+      });
     }
-  }, [isAuthenticated, router]);
+  }, [mounted, isAuthenticated, router, fetchMe]);
+
+  // Sync avatarPreview with the store user avatar on mount
+  useEffect(() => {
+    if (user?.avatar) setAvatarPreview(user.avatar);
+  }, [user?.avatar]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
@@ -64,29 +81,39 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Immediately show a local blob preview while uploading
+    const localPreview = URL.createObjectURL(file);
+    setAvatarPreview(localPreview);
     setIsUploading(true);
+
     try {
-      // 1. Upload to server
-      const uploadRes = await MediaService.uploadMedia(file);
-      const avatarUrl = uploadRes.url;
-      
-      // 2. Update profile with new avatar URL
-      const updatedUser = await AuthService.updateProfile({ avatar: avatarUrl });
-      
-      // 3. Sync store
-      updateUser(updatedUser);
-      setValue('avatar', avatarUrl);
-      
-      toast.success('Profile picture updated!');
+      // uploadAvatar uploads to Cloudinary and updates the profile in one step
+      const updatedUser = await AuthService.uploadAvatar(file);
+
+      if (updatedUser && updatedUser.avatar) {
+        // Use the real Cloudinary URL from response
+        const cloudinaryUrl = updatedUser.avatar;
+        setAvatarPreview(cloudinaryUrl);
+        setValue('avatar', cloudinaryUrl);
+        updateUser(updatedUser);
+        toast.success('Profile picture updated!');
+      } else {
+        throw new Error('No avatar URL returned from server');
+      }
     } catch (error: any) {
-      toast.error('Failed to upload image');
-      console.error(error);
+      // Revert preview on failure
+      setAvatarPreview(user?.avatar || null);
+      toast.error(error.response?.data?.message || 'Failed to upload image');
+      console.error('Avatar upload error:', error);
     } finally {
       setIsUploading(false);
+      // Clean up the blob URL
+      URL.revokeObjectURL(localPreview);
     }
   };
 
-  if (!user) return null;
+  if (!mounted || !user) return null;
+
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 md:px-12 bg-black">
@@ -122,8 +149,15 @@ export default function ProfilePage() {
                       <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     </div>
                   )}
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  {avatarPreview ? (
+                    <Image 
+                      src={avatarPreview} 
+                      alt={user.name} 
+                      fill
+                      className="w-full h-full object-cover"
+                      priority={false}
+                      sizes="128px"
+                    />
                   ) : (
                     <User className="w-16 h-16 text-primary" />
                   )}

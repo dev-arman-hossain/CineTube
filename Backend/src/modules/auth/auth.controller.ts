@@ -43,9 +43,42 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const uploadAvatar = catchAsync(async (req: Request, res: Response) => {
+  const file = (req as any).file;
+  
+  if (!file) {
+    res.status(400).json({ 
+      success: false, 
+      message: 'No file uploaded' 
+    });
+    return;
+  }
+
+  // Extract the secure URL from Cloudinary response
+  // multer-storage-cloudinary stores the full path in req.file.path
+  const avatarUrl = file.path || file.secure_url;
+  
+  if (!avatarUrl) {
+    res.status(400).json({
+      success: false,
+      message: 'Failed to get image URL from Cloudinary'
+    });
+    return;
+  }
+
+  const result = await AuthService.updateProfile((req as any).user.email, { avatar: avatarUrl });
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Avatar uploaded successfully',
+    data: result,
+  });
+});
+
 export const AuthController = {
   register,
   login,
   getMe,
   updateProfile,
+  uploadAvatar,
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { Search, Bell, User, Menu, X, Play, LogOut, Shield, ChevronDown, Bookmark } from 'lucide-react';
@@ -101,7 +102,7 @@ const Navbar = () => {
              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link 
                   href="/search" 
-                  className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/[0.03] hover:bg-white/[0.08] rounded-full border border-white/5 hover:border-white/20 group"
+                  className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/3 hover:bg-white/8 rounded-full border border-white/5 hover:border-white/20 group"
                 >
                   <Search className="w-4.5 h-4.5 group-hover:scale-110 transition-transform" />
                 </Link>
@@ -109,7 +110,7 @@ const Navbar = () => {
              <motion.button 
                whileHover={{ scale: 1.05 }} 
                whileTap={{ scale: 0.95 }}
-               className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/[0.03] hover:bg-white/[0.08] rounded-full border border-white/5 hover:border-white/20 relative group"
+               className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/3 hover:bg-white/8 rounded-full border border-white/5 hover:border-white/20 relative group"
               >
                <Bell className="w-4.5 h-4.5 group-hover:rotate-12 transition-transform" />
                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-[#141414] shadow-sm animate-pulse" />
@@ -124,16 +125,23 @@ const Navbar = () => {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-full bg-white/5 border border-white/10 hover:border-primary/40 transition-all group"
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-rose-600 flex items-center justify-center text-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/10">
+                <div className="w-9 h-9 rounded-full bg-linear-to-br from-primary to-rose-600 flex items-center justify-center text-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/10 relative">
                   {user?.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    <Image 
+                      src={user.avatar} 
+                      alt={user.name} 
+                      fill
+                      className="w-full h-full object-cover"
+                      priority={false}
+                      sizes="36px"
+                    />
                   ) : (
                     user?.name?.[0].toUpperCase()
                   )}
                 </div>
                 <div className="hidden lg:block text-left">
                    <p className="text-[10px] font-black text-muted-foreground uppercase leading-none mb-0.5">Account</p>
-                   <p className="text-xs font-bold text-white leading-none truncate max-w-[80px]">{user?.name?.split(' ')[0]}</p>
+                   <p className="text-xs font-bold text-white leading-none truncate max-w-20">{user?.name?.split(' ')[0]}</p>
                 </div>
                 <ChevronDown className={cn("w-4 h-4 text-secondary-foreground transition-transform duration-300", isProfileOpen && "rotate-180")} />
               </button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { MediaService } from '@/services/mediaService';
 import { WatchlistService } from '@/services/watchlistService';
 import { useAuthStore } from '@/store/authStore';
@@ -84,10 +85,14 @@ export default function MediaDetailsPage() {
     <div className="pb-20">
       {/* Hero Section */}
       <section className="relative h-[70vh] md:h-[80vh] w-full flex items-end px-4 md:px-12 pb-12 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${media.posterUrl || 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop'})` }}
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent z-10" />
+        <Image 
+          src={media.posterUrl || 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop'}
+          alt={media.title}
+          fill
+          className="absolute inset-0 w-full h-full object-cover"
+          priority
+          sizes="100vw"
         />
         
         <div className="relative z-20 max-w-4xl space-y-6">
@@ -233,7 +238,7 @@ export default function MediaDetailsPage() {
           </div>
 
           {/* Ad/Promo Placeholder */}
-          <div className="aspect-[4/5] bg-gradient-to-br from-primary/20 to-secondary rounded-3xl border border-white/5 flex items-center justify-center p-8 text-center overflow-hidden relative">
+          <div className="aspect-4/5 bg-linear-to-br from-primary/20 to-secondary rounded-3xl border border-white/5 flex items-center justify-center p-8 text-center overflow-hidden relative">
              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
              <div className="relative z-10 space-y-4">
                <h4 className="text-xl font-bold font-outfit">Join the CineTube Pro</h4>

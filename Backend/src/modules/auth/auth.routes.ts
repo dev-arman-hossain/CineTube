@@ -3,6 +3,7 @@ import validateRequest from '../../middlewares/validateRequest';
 import { AuthController } from './auth.controller';
 import { AuthValidation } from './auth.validation';
 import auth from '../../middlewares/auth.middleware';
+import { upload } from '../../utils/cloudinary';
 
 const router = Router();
 
@@ -25,5 +26,8 @@ router.patch(
   validateRequest(AuthValidation.updateProfileValidationSchema),
   AuthController.updateProfile,
 );
+
+// Avatar upload – available to any authenticated user (not admin-only)
+router.post('/avatar', auth, upload.single('image'), AuthController.uploadAvatar);
 
 export const AuthRoutes = router;
