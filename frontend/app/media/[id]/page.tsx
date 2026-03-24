@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { MediaService } from '@/services/mediaService';
 import { WatchlistService } from '@/services/watchlistService';
@@ -21,6 +22,7 @@ function cn(...inputs: ClassValue[]) {
 export default function MediaDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [media, setMedia] = useState<Media | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [inWatchlist, setInWatchlist] = useState(false);
@@ -60,6 +62,7 @@ export default function MediaDetailsPage() {
     try {
       const result = await WatchlistService.toggleWatchlist(id as string);
       setInWatchlist(result.added);
+      queryClient.invalidateQueries({ queryKey: ['watchlist'] });
       toast.success(result.added ? 'Added to watchlist' : 'Removed from watchlist');
     } catch (error) {
       toast.error('Failed to update watchlist');

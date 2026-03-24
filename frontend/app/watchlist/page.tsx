@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { WatchlistService } from '@/services/watchlistService';
 import { Media } from '@/types';
 import MediaGrid from '@/components/media/MediaGrid';
@@ -9,8 +10,6 @@ import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 
 export default function WatchlistPage() {
-  const [watchlistItems, setWatchlistItems] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -19,29 +18,22 @@ export default function WatchlistPage() {
     setMounted(true);
   }, []);
 
+  const { data: watchlistItems = [], isLoading } = useQuery({
+    queryKey: ['watchlist'],
+    queryFn: async () => {
+      const response = await WatchlistService.getMyWatchlist();
+      return response.data;
+    },
+    enabled: mounted && isAuthenticated,
+  });
+
   useEffect(() => {
-    if (!mounted) return;
-
-    if (!isAuthenticated) {
+    if (mounted && !isAuthenticated) {
       router.push('/login');
-      return;
     }
+  }, [mounted, isAuthenticated, router]);
 
-    const fetchWatchlist = async () => {
-      try {
-        const response = await WatchlistService.getMyWatchlist();
-        setWatchlistItems(response.data);
-      } catch (error) {
-        console.error('Failed to fetch watchlist:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchWatchlist();
-  }, [isAuthenticated, router]);
-
-  const movies = watchlistItems.map(item => item.media);
+  const movies = watchlistItems.map((item: any) => item.media);
 
   if (!mounted) return null;
 

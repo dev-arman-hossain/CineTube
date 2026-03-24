@@ -32,7 +32,18 @@ const getMyWatchlist = async (userId: string) => {
   const result = await prisma.watchlist.findMany({
     where: { userId },
     include: {
-      media: true,
+      media: {
+        select: {
+          id: true,
+          title: true,
+          posterUrl: true,
+          avgRating: true,
+          releaseYear: true,
+          genre: true,
+          contentType: true,
+          type: true,
+        },
+      },
     },
     orderBy: { createdAt: 'desc' },
   });
