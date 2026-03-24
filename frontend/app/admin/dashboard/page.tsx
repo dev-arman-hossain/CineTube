@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
 import { Users, Film, Star, TrendingUp, Edit2, Shield, Power, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -157,8 +158,17 @@ export default function AdminDashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-sm font-black text-primary border border-primary/20 shadow-inner">
-                    {user.name?.[0].toUpperCase()}
+                  <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-sm font-black text-primary border border-primary/20 shadow-inner overflow-hidden relative">
+                    {user.avatar ? (
+                      <Image 
+                        src={user.avatar} 
+                        alt={user.name} 
+                        fill 
+                        className="object-cover"
+                      />
+                    ) : (
+                      user.name?.[0].toUpperCase()
+                    )}
                   </div>
                   <div>
                     <h4 className="font-black text-sm">{user.name}</h4>
@@ -234,8 +244,17 @@ export default function AdminDashboardPage() {
                 <tr key={user.id} className="text-xs md:text-sm hover:bg-white/5 transition-colors group">
                   <td className="px-5 md:px-6 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-xs font-black text-primary shrink-0 border border-primary/10">
-                        {user.name?.[0].toUpperCase()}
+                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-xs font-black text-primary shrink-0 border border-primary/10 overflow-hidden relative">
+                        {user.avatar ? (
+                          <Image 
+                            src={user.avatar} 
+                            alt={user.name} 
+                            fill 
+                            className="object-cover"
+                          />
+                        ) : (
+                          user.name?.[0].toUpperCase()
+                        )}
                       </div>
                       <div className="min-w-0">
                         <p className="font-black tracking-tight text-white">{user.name}</p>

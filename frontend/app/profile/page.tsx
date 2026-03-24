@@ -159,7 +159,9 @@ export default function ProfilePage() {
                       sizes="128px"
                     />
                   ) : (
-                    <User className="w-16 h-16 text-primary" />
+                      <span className="relative z-10 text-4xl font-black text-primary font-outfit uppercase">
+                        {user.name?.[0]}
+                      </span>
                   )}
                 </div>
                 <button 

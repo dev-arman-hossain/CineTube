@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
 import { Shield, Edit2, Search, Calendar, Mail, UserCheck, UserMinus, UserX, Power, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -137,9 +138,18 @@ export default function UserManagementPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className="relative">
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-black flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden group-hover:border-primary/30 transition-all">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-black flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden group-hover:border-primary/30 transition-all relative">
                              <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors" />
-                             <span className="relative z-10 text-lg font-black text-primary font-outfit">{user.name?.[0].toUpperCase()}</span>
+                             {user.avatar ? (
+                               <Image 
+                                 src={user.avatar} 
+                                 alt={user.name} 
+                                 fill 
+                                 className="object-cover"
+                               />
+                             ) : (
+                               <span className="relative z-10 text-lg font-black text-primary font-outfit">{user.name?.[0].toUpperCase()}</span>
+                             )}
                           </div>
                           <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-500 border-2 border-black flex items-center justify-center">
                              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -244,8 +254,17 @@ export default function UserManagementPage() {
                   <tr key={user.id} className="text-sm hover:bg-white/[0.02] transition-all group border-l-4 border-l-transparent hover:border-l-primary">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-black flex items-center justify-center border border-white/10 shadow-lg group-hover:scale-105 transition-transform">
-                           <span className="font-outfit font-black text-primary text-base">{user.name?.[0].toUpperCase()}</span>
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-black flex items-center justify-center border border-white/10 shadow-lg group-hover:scale-105 transition-transform overflow-hidden relative">
+                           {user.avatar ? (
+                             <Image 
+                               src={user.avatar} 
+                               alt={user.name} 
+                               fill 
+                               className="object-cover"
+                             />
+                           ) : (
+                             <span className="font-outfit font-black text-primary text-base">{user.name?.[0].toUpperCase()}</span>
+                           )}
                         </div>
                         <div className="min-w-0">
                           <p className="font-black text-white text-base tracking-tight group-hover:text-primary transition-colors">{user.name}</p>

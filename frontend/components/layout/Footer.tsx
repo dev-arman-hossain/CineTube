@@ -18,16 +18,16 @@ const Footer = () => {
             The ultimate destination for movie enthusiasts. Stream your favorite content, read authentic reviews, and manage your watchlist all in one place.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
               <Twitter className="w-4 h-4 text-white" />
             </a>
-            <a href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
               <Facebook className="w-4 h-4 text-white" />
             </a>
-            <a href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
               <Instagram className="w-4 h-4 text-white" />
             </a>
-            <a href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/5 rounded-full hover:bg-primary hover:scale-110 transition-all border border-white/5">
               <Youtube className="w-4 h-4 text-white" />
             </a>
           </div>
@@ -39,8 +39,8 @@ const Footer = () => {
             <ul className="space-y-3 text-sm text-secondary-foreground font-medium">
               <li><Link href="/movies" className="hover:text-primary transition-colors">Movies</Link></li>
               <li><Link href="/series" className="hover:text-primary transition-colors">Series</Link></li>
-              <li><Link href="/top-rated" className="hover:text-primary transition-colors">Top Rated</Link></li>
-              <li><Link href="/new-releases" className="hover:text-primary transition-colors">New Releases</Link></li>
+              <li><Link href="/search?sort=highest_rated" className="hover:text-primary transition-colors">Top Rated</Link></li>
+              <li><Link href="/search?sort=latest" className="hover:text-primary transition-colors">New Releases</Link></li>
             </ul>
           </div>
           <div className="space-y-4">
@@ -55,7 +55,7 @@ const Footer = () => {
           <div className="space-y-4 col-span-2 md:col-span-1">
             <h4 className="text-white font-black uppercase text-xs tracking-widest">Support</h4>
             <ul className="space-y-3 text-sm text-secondary-foreground font-medium">
-              <li><Link href="/help" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link href="/pricing" className="hover:text-primary transition-colors">Support Center</Link></li>
               <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
             </ul>
@@ -68,9 +68,9 @@ const Footer = () => {
           © {new Date().getFullYear()} CineTube. All rights reserved. Crafted for Cinema lovers.
         </p>
         <div className="flex gap-8 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          <span className="hover:text-primary cursor-pointer transition-colors">Security</span>
-          <span className="hover:text-primary cursor-pointer transition-colors">Cookies</span>
-          <span className="hover:text-primary cursor-pointer transition-colors">About Us</span>
+          <Link href="/terms" className="hover:text-primary transition-colors">Security</Link>
+          <Link href="/privacy" className="hover:text-primary transition-colors">Cookies</Link>
+          <Link href="/" className="hover:text-primary transition-colors">About Us</Link>
         </div>
       </div>
     </footer>
