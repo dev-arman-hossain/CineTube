@@ -5,6 +5,7 @@ import { ReviewRoutes } from '../modules/review/review.routes';
 import { CommentRoutes } from '../modules/comment/comment.routes';
 import { WatchlistRoutes } from '../modules/watchlist/watchlist.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
+import { NotificationRoutes } from '../modules/notification/notification.routes';
 
 const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: '/admin',
     route: AdminRoutes,
+  },
+  {
+    path: '/notifications',
+    route: NotificationRoutes,
   },
 ];
 

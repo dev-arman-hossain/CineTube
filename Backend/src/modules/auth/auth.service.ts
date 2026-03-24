@@ -40,6 +40,30 @@ const register = async (payload: any) => {
     role: newUser.role,
   });
 
+  // Create welcome notification for the new user
+  await (prisma as any).notification.create({
+    data: {
+      userId: newUser.id,
+      title: 'Welcome to Cinetube V2!',
+      message: 'Experience the brand new cinematic dark mode and faster streaming speeds.',
+    },
+  });
+
+  // Notify admins about the new user signup
+  const admins = await prisma.user.findMany({
+    where: { role: 'ADMIN' },
+  });
+
+  if (admins.length > 0) {
+    await (prisma as any).notification.createMany({
+      data: admins.map((admin: any) => ({
+        userId: admin.id,
+        title: 'New member alert!',
+        message: `${newUser.name} just joined the Cinetube family.`,
+      })),
+    });
+  }
+
   return { user: newUser, token };
 };
 

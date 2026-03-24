@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, Bell, User, Menu, X, Play, LogOut, Shield, ChevronDown, Bookmark } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
+import { useNotificationStore } from '@/store/notificationStore';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -25,6 +26,44 @@ const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { 
+    notifications, 
+    unreadCount, 
+    fetchNotifications, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotificationStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+      // Optional: Poll every 30 seconds for new notifications
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, fetchNotifications]);
+
+  const timeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead();
+  };
+
+  const handleNotificationClick = async (id: string) => {
+    await markAsRead(id);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,7 +159,9 @@ const Navbar = () => {
                  className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/3 hover:bg-white/8 rounded-full border border-white/5 hover:border-white/20 relative group"
                 >
                  <Bell className="w-4.5 h-4.5 group-hover:rotate-12 transition-transform" />
-                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-[#141414] shadow-sm animate-pulse" />
+                 {unreadCount > 0 && (
+                   <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-[#141414] shadow-sm animate-pulse" />
+                 )}
                </motion.button>
 
                <AnimatePresence>
@@ -133,33 +174,41 @@ const Navbar = () => {
                    >
                      <div className="p-4 border-b border-white/5 flex items-center justify-between">
                         <p className="text-sm font-black text-white uppercase tracking-widest">Notifications</p>
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">2 New</span>
+                        {unreadCount > 0 && (
+                          <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">{unreadCount} New</span>
+                        )}
                      </div>
                      <div className="max-h-80 overflow-y-auto no-scrollbar">
-                       <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
-                         <div className="flex gap-3">
-                           <div className="w-2 h-2 bg-primary rounded-full mt-1.5 shrink-0" />
-                           <div>
-                             <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">Welcome to Cinetube V2!</p>
-                             <p className="text-xs text-secondary-foreground mt-1 line-clamp-2">Experience the brand new cinematic dark mode and faster streaming speeds.</p>
-                             <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase">Just now</p>
+                       {notifications.length > 0 ? notifications.map((notification) => (
+                         <div 
+                           key={notification.id}
+                           onClick={() => handleNotificationClick(notification.id)}
+                           className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
+                         >
+                           <div className="flex gap-3">
+                             {/* Only show dot if not read */}
+                             <div className={cn("w-2 h-2 rounded-full mt-1.5 shrink-0", !notification.isRead ? "bg-primary" : "bg-transparent")} />
+                             <div>
+                               <p className={cn("text-sm font-bold transition-colors", !notification.isRead ? "text-white group-hover:text-primary" : "text-secondary-foreground")}>{notification.title}</p>
+                               <p className="text-xs text-secondary-foreground mt-1 line-clamp-2">{notification.message}</p>
+                               <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase">{timeAgo(notification.createdAt)}</p>
+                             </div>
                            </div>
                          </div>
-                       </div>
-                       <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
-                         <div className="flex gap-3">
-                           <div className="w-2 h-2 bg-primary rounded-full mt-1.5 shrink-0" />
-                           <div>
-                             <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">Action Movies Update</p>
-                             <p className="text-xs text-secondary-foreground mt-1 line-clamp-2">We have added 50+ new Action titles to the catalog. Check them out!</p>
-                             <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase">2 hours ago</p>
-                           </div>
+                       )) : (
+                         <div className="p-8 text-center">
+                           <p className="text-sm text-secondary-foreground font-medium">No notifications yet</p>
                          </div>
+                       )}
+                     </div>
+                     {notifications.length > 0 && unreadCount > 0 && (
+                       <div 
+                         onClick={handleMarkAllAsRead}
+                         className="p-3 border-t border-white/5 text-center bg-black/50 hover:bg-white/5 transition-colors cursor-pointer"
+                       >
+                         <p className="text-xs font-bold text-primary uppercase tracking-widest">Mark all as read</p>
                        </div>
-                     </div>
-                     <div className="p-3 border-t border-white/5 text-center bg-black/50 hover:bg-white/5 transition-colors cursor-pointer">
-                       <p className="text-xs font-bold text-primary uppercase tracking-widest">Mark all as read</p>
-                     </div>
+                     )}
                    </motion.div>
                  )}
                </AnimatePresence>

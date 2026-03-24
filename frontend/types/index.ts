@@ -48,3 +48,12 @@ export interface AuthResponse {
   token: string;
   user: User;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  userId: string;
+}
