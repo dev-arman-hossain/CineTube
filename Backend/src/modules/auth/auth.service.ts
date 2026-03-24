@@ -58,7 +58,7 @@ const register = async (payload: any) => {
     await (prisma as any).notification.createMany({
       data: admins.map((admin: any) => ({
         userId: admin.id,
-        title: 'New member alert!',
+        title: 'New member signup!',
         message: `${newUser.name} just joined the Cinetube family.`,
       })),
     });
