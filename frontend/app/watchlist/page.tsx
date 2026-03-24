@@ -44,8 +44,8 @@ export default function WatchlistPage() {
           <Bookmark className="w-8 h-8 text-primary fill-primary" />
         </div>
         <div>
-           <h1 className="text-4xl font-black font-outfit tracking-tight">My <span className="text-primary">Watchlist</span></h1>
-           <p className="text-secondary-foreground text-sm">Your personal collection of must-watch titles.</p>
+          <h1 className="text-4xl font-black font-outfit tracking-tight">My <span className="text-primary">Watchlist</span></h1>
+          <p className="text-secondary-foreground text-sm">Your personal collection of must-watch titles.</p>
         </div>
       </div>
 

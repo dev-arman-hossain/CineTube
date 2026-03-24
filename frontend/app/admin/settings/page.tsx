@@ -45,11 +45,11 @@ export default function AdminSettings() {
         <button 
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-8 py-3 bg-primary text-black font-black uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          className="flex items-center gap-2 px-8 py-3 bg-primary !text-white font-black uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           {isSaving ? (
             <span className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full border-2 border-black border-t-transparent animate-spin"/>
+              <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"/>
               Saving...
             </span>
           ) : (
@@ -70,11 +70,11 @@ export default function AdminSettings() {
                onClick={() => setActiveTab(tab.id)}
                className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${
                  activeTab === tab.id 
-                   ? 'bg-primary text-black shadow-[0_0_20px_rgba(var(--primary),0.3)] border border-primary' 
+                   ? 'bg-primary !text-white shadow-[0_0_20px_rgba(var(--primary),0.3)] border border-primary' 
                    : 'text-secondary-foreground hover:bg-white/5 border border-transparent'
                }`}
              >
-               <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-black fill-black/20' : 'text-neutral-400'}`} />
+               <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white fill-white/20' : 'text-neutral-400'}`} />
                {tab.label}
              </button>
           ))}

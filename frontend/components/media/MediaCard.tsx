@@ -27,7 +27,7 @@ const MediaCard = ({ media }: MediaCardProps) => {
         priority={false}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
       />
-      
+
       {/* Overlay */}
       <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
 
@@ -43,17 +43,17 @@ const MediaCard = ({ media }: MediaCardProps) => {
               {media.releaseYear}
             </span>
           </div>
-          
+
           <h3 className="text-sm font-bold text-white line-clamp-1 leading-tight">
             {media.title}
           </h3>
-          
+
           <p className="text-[10px] text-secondary-foreground line-clamp-2">
             {media.genre.join(', ')}
           </p>
 
           <div className="flex items-center gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-500 delay-100">
-            <Link 
+            <Link
               href={`/media/${media.id}`}
               className="grow flex items-center justify-center gap-1 py-2 bg-primary text-white text-[10px] font-bold rounded-lg hover:bg-rose-700 transition-all"
             >
