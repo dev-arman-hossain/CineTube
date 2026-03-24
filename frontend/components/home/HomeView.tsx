@@ -135,31 +135,31 @@ export default function HomeView({ featured, trending, newReleases, topRated = [
       </div>
 
       {/* Browse by Genre Section */}
-      <section className="px-4 md:px-12 py-16 mt-8">
-        <div className="flex justify-between items-end mb-8">
+      <section className="px-4 md:px-12 py-16 mt-8 relative">
+        <div className="flex justify-between items-end mb-8 relative z-10">
            <h3 className="text-3xl font-black font-outfit tracking-tighter flex items-center gap-3">
              Browse by Genre
              <div className="h-1 w-20 bg-primary/40 rounded-full" />
            </h3>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 relative z-10">
           {[
-            { name: 'Action', icon: Zap, color: 'from-orange-500 to-red-500' },
-            { name: 'Comedy', icon: Smile, color: 'from-green-400 to-emerald-600' },
-            { name: 'Drama', icon: Film, color: 'from-blue-400 to-indigo-600' },
-            { name: 'Sci-Fi', icon: Sparkles, color: 'from-purple-500 to-pink-500' },
-            { name: 'Horror', icon: Tv, color: 'from-red-600 to-rose-900' },
-            { name: 'Documentary', icon: Info, color: 'from-teal-400 to-cyan-600' },
+            { name: 'Action', icon: Zap },
+            { name: 'Comedy', icon: Smile },
+            { name: 'Drama', icon: Film },
+            { name: 'Sci-Fi', icon: Sparkles },
+            { name: 'Horror', icon: Tv },
+            { name: 'Documentary', icon: Info },
           ].map((genre, idx) => (
-            <Link key={idx} href={`/search?q=${genre.name}`}>
+            <Link key={idx} href={`/search?q=${genre.name}`} className="block">
                <motion.div 
-                 whileHover={{ scale: 1.05 }}
-                 whileTap={{ scale: 0.95 }}
-                 className={`relative overflow-hidden rounded-2xl aspect-video bg-linear-to-br ${genre.color} p-4 flex flex-col items-center justify-center gap-2 group shadow-lg cursor-pointer`}
+                 whileHover={{ y: -8, scale: 1.02 }}
+                 className="relative overflow-hidden rounded-2xl bg-neutral-900 border border-white/5 p-6 flex flex-col items-center justify-center gap-4 group cursor-pointer hover:bg-neutral-800 hover:border-primary/50 hover:shadow-[0_0_30px_rgba(var(--primary),0.15)] transition-all duration-300"
                >
-                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
-                 <genre.icon className="w-8 h-8 text-white z-10 drop-shadow-md" />
-                 <span className="text-white font-bold text-lg z-10 drop-shadow-md tracking-wide">{genre.name}</span>
+                 <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-300 border border-white/5 group-hover:border-primary/20">
+                   <genre.icon className="w-6 h-6 text-neutral-400 group-hover:text-primary transition-colors duration-300" />
+                 </div>
+                 <span className="text-neutral-300 font-bold uppercase tracking-widest text-sm group-hover:text-white transition-colors duration-300">{genre.name}</span>
                </motion.div>
             </Link>
           ))}
