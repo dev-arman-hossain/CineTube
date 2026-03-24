@@ -18,7 +18,9 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
   
   const pathname = usePathname();
   const router = useRouter();
@@ -31,6 +33,9 @@ const Navbar = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false);
       }
     };
     window.addEventListener('scroll', handleScroll);
@@ -107,14 +112,58 @@ const Navbar = () => {
                   <Search className="w-4.5 h-4.5 group-hover:scale-110 transition-transform" />
                 </Link>
              </motion.div>
-             <motion.button 
-               whileHover={{ scale: 1.05 }} 
-               whileTap={{ scale: 0.95 }}
-               className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/3 hover:bg-white/8 rounded-full border border-white/5 hover:border-white/20 relative group"
-              >
-               <Bell className="w-4.5 h-4.5 group-hover:rotate-12 transition-transform" />
-               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-[#141414] shadow-sm animate-pulse" />
-             </motion.button>
+             <div className="relative" ref={notificationRef}>
+               <motion.button 
+                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                 whileHover={{ scale: 1.05 }} 
+                 whileTap={{ scale: 0.95 }}
+                 className="w-10 h-10 flex items-center justify-center text-secondary-foreground hover:text-white transition-all bg-white/3 hover:bg-white/8 rounded-full border border-white/5 hover:border-white/20 relative group"
+                >
+                 <Bell className="w-4.5 h-4.5 group-hover:rotate-12 transition-transform" />
+                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-[#141414] shadow-sm animate-pulse" />
+               </motion.button>
+
+               <AnimatePresence>
+                 {isNotificationOpen && (
+                   <motion.div
+                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                     animate={{ opacity: 1, scale: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                     className="absolute right-0 mt-3 w-80 bg-black/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                   >
+                     <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                        <p className="text-sm font-black text-white uppercase tracking-widest">Notifications</p>
+                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">2 New</span>
+                     </div>
+                     <div className="max-h-80 overflow-y-auto no-scrollbar">
+                       <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
+                         <div className="flex gap-3">
+                           <div className="w-2 h-2 bg-primary rounded-full mt-1.5 shrink-0" />
+                           <div>
+                             <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">Welcome to Cinetube V2!</p>
+                             <p className="text-xs text-secondary-foreground mt-1 line-clamp-2">Experience the brand new cinematic dark mode and faster streaming speeds.</p>
+                             <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase">Just now</p>
+                           </div>
+                         </div>
+                       </div>
+                       <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
+                         <div className="flex gap-3">
+                           <div className="w-2 h-2 bg-primary rounded-full mt-1.5 shrink-0" />
+                           <div>
+                             <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">Action Movies Update</p>
+                             <p className="text-xs text-secondary-foreground mt-1 line-clamp-2">We have added 50+ new Action titles to the catalog. Check them out!</p>
+                             <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase">2 hours ago</p>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                     <div className="p-3 border-t border-white/5 text-center bg-black/50 hover:bg-white/5 transition-colors cursor-pointer">
+                       <p className="text-xs font-bold text-primary uppercase tracking-widest">Mark all as read</p>
+                     </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+             </div>
           </div>
 
           <div className="h-6 w-px bg-white/10 hidden md:block mx-1" />
