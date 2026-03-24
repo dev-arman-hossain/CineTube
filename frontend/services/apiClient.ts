@@ -5,6 +5,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  adapter: 'fetch',
 });
 
 apiClient.interceptors.request.use((config) => {
