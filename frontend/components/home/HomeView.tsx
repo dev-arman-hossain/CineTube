@@ -1,6 +1,6 @@
 'use client';
 
-import { Play, Info, Star } from 'lucide-react';
+import { Play, Info, Star, Tv, Film, Sparkles, Shield, Zap, Smile, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,12 +10,14 @@ interface HomeViewProps {
   featured: Media | null;
   trending: Media[];
   newReleases: Media[];
+  topRated?: Media[];
 }
 
-export default function HomeView({ featured, trending, newReleases }: HomeViewProps) {
+export default function HomeView({ featured, trending, newReleases, topRated = [] }: HomeViewProps) {
   const categories = [
     { title: 'Trending Now', items: trending, link: '/movies' },
     { title: 'New Releases', items: newReleases, link: '/series' },
+    ...(topRated.length > 0 ? [{ title: 'Most Popular', items: topRated, link: '/movies' }] : []),
   ];
 
   return (
@@ -131,6 +133,86 @@ export default function HomeView({ featured, trending, newReleases }: HomeViewPr
           </section>
         ))}
       </div>
+
+      {/* Browse by Genre Section */}
+      <section className="px-4 md:px-12 py-16 mt-8">
+        <div className="flex justify-between items-end mb-8">
+           <h3 className="text-3xl font-black font-outfit tracking-tighter flex items-center gap-3">
+             Browse by Genre
+             <div className="h-1 w-20 bg-primary/40 rounded-full" />
+           </h3>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {[
+            { name: 'Action', icon: Zap, color: 'from-orange-500 to-red-500' },
+            { name: 'Comedy', icon: Smile, color: 'from-green-400 to-emerald-600' },
+            { name: 'Drama', icon: Film, color: 'from-blue-400 to-indigo-600' },
+            { name: 'Sci-Fi', icon: Sparkles, color: 'from-purple-500 to-pink-500' },
+            { name: 'Horror', icon: Tv, color: 'from-red-600 to-rose-900' },
+            { name: 'Documentary', icon: Info, color: 'from-teal-400 to-cyan-600' },
+          ].map((genre, idx) => (
+            <Link key={idx} href={`/search?q=${genre.name}`}>
+               <motion.div 
+                 whileHover={{ scale: 1.05 }}
+                 whileTap={{ scale: 0.95 }}
+                 className={`relative overflow-hidden rounded-2xl aspect-video bg-linear-to-br ${genre.color} p-4 flex flex-col items-center justify-center gap-2 group shadow-lg cursor-pointer`}
+               >
+                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
+                 <genre.icon className="w-8 h-8 text-white z-10 drop-shadow-md" />
+                 <span className="text-white font-bold text-lg z-10 drop-shadow-md tracking-wide">{genre.name}</span>
+               </motion.div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="px-4 md:px-12 py-16 bg-neutral-900/50 border-y border-white/5 mt-8">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black font-outfit uppercase tracking-tighter">Why Choose Cinetube?</h2>
+            <p className="text-neutral-400 max-w-2xl mx-auto text-lg">Experience the next generation of streaming with premium features designed for your ultimate entertainment.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Premium 4K Quality', desc: 'Watch your favorite movies and series in stunning 4K Ultra HD resolution with Dolby Atmos audio.', icon: Sparkles },
+              { title: 'Ad-Free Experience', desc: 'Enjoy uninterrupted entertainment without any annoying ads or pop-ups during your playback.', icon: Shield },
+              { title: 'Cancel Anytime', desc: 'No hidden fees or long-term contracts. Pause or cancel your subscription whenever you want.', icon: CheckCircle2 },
+            ].map((feature, idx) => (
+              <div key={idx} className="bg-neutral-900 border border-white/10 rounded-3xl p-8 hover:bg-neutral-800 transition-colors duration-300 flex flex-col items-center text-center space-y-4 shadow-xl">
+                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                   <feature.icon className="w-8 h-8" />
+                 </div>
+                 <h4 className="text-xl font-bold">{feature.title}</h4>
+                 <p className="text-neutral-400 leading-relaxed">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="px-4 md:px-12 py-24 text-center">
+        <div className="max-w-4xl mx-auto bg-linear-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20 rounded-3xl p-12 relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-primary/30 blur-3xl rounded-full" />
+          <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-primary/30 blur-3xl rounded-full" />
+          
+          <div className="relative z-10 space-y-6">
+            <h2 className="text-4xl md:text-5xl font-black font-outfit uppercase tracking-tighter">Ready to start watching?</h2>
+            <p className="text-xl text-neutral-300 max-w-2xl mx-auto">Join thousands of subscribers who are already enjoying our unlimited streaming library.</p>
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+               <Link href="/subscribe" className="px-8 py-4 bg-primary text-primary-foreground font-black uppercase tracking-wider rounded-xl hover:bg-primary/90 transition-all transform hover:scale-105 w-full sm:w-auto text-lg flex items-center justify-center gap-2 shadow-lg">
+                 <Play className="w-5 h-5 fill-current" />
+                 Subscribe Now
+               </Link>
+               <Link href="/movies" className="px-8 py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all backdrop-blur-md w-full sm:w-auto text-lg border border-white/20">
+                 Explore Library
+               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
