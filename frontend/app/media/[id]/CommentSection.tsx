@@ -86,7 +86,7 @@ const CommentSection = ({ reviewId }: CommentSectionProps) => {
                 </div>
                 <p className="text-xs text-secondary-foreground leading-snug">{comment.content}</p>
                 
-                {(user?.id === comment.userId || user?.role === 'ADMIN') && (
+                {isAuthenticated && (user?.id === comment.userId || user?.id === comment.user?.id || user?.role === 'ADMIN') && (
                   <button 
                     onClick={() => handleDelete(comment.id)}
                     className="text-[8px] text-primary hover:underline opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 pt-1"

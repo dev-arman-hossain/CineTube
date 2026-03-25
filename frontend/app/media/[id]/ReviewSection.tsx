@@ -145,10 +145,10 @@ const ReviewSection = ({ mediaId, onReviewSubmitted }: ReviewSectionProps) => {
                    >
                      <MessageSquare className="w-4 h-4" />
                      {review._count?.comments || 0} Comments
-                     {expandedReviewId === review.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                   {expandedReviewId === review.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                    </button>
                    
-                   {(user?.id === review.userId || user?.role === 'ADMIN') && (
+                   {isAuthenticated && (user?.id === review.userId || user?.id === review.user?.id || user?.role === 'ADMIN') && (
                      <button 
                        onClick={() => handleDeleteReview(review.id)}
                        className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors ml-auto"
