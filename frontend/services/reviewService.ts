@@ -15,4 +15,9 @@ export const ReviewService = {
     const response = await apiClient.get('/reviews', { params });
     return response.data;
   },
+
+  deleteReview: async (id: string) => {
+    const response = await apiClient.delete(`/reviews/${id}`);
+    return response.data;
+  },
 };

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Review, User as UserType } from '@/types';
 import { ReviewService } from '@/services/reviewService';
 import { useAuthStore } from '@/store/authStore';
-import { Star, ThumbsUp, MessageSquare, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, ThumbsUp, MessageSquare, AlertCircle, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import ReviewForm from './ReviewForm';
@@ -53,6 +53,19 @@ const ReviewSection = ({ mediaId, onReviewSubmitted }: ReviewSectionProps) => {
       fetchReviews(); // Refresh
     } catch (error) {
       toast.error('Failed to like review');
+    }
+  };
+
+  const handleDeleteReview = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this review? This will also delete all associated comments.')) return;
+    
+    try {
+      await ReviewService.deleteReview(id);
+      toast.success('Review deleted successfully');
+      fetchReviews();
+      if (onReviewSubmitted) onReviewSubmitted();
+    } catch (error) {
+      toast.error('Failed to delete review');
     }
   };
 
@@ -134,6 +147,17 @@ const ReviewSection = ({ mediaId, onReviewSubmitted }: ReviewSectionProps) => {
                      {review._count?.comments || 0} Comments
                      {expandedReviewId === review.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                    </button>
+                   
+                   {(user?.id === review.userId || user?.role === 'ADMIN') && (
+                     <button 
+                       onClick={() => handleDeleteReview(review.id)}
+                       className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors ml-auto"
+                       title="Delete Review"
+                     >
+                       <Trash2 className="w-4 h-4 text-primary" />
+                       <span className="hidden sm:inline">Delete</span>
+                     </button>
+                   )}
                 </div>
 
                 <AnimatePresence>
