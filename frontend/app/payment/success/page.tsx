@@ -7,7 +7,9 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 
-export default function PaymentSuccessPage() {
+import { Suspense } from 'react';
+
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -28,7 +30,7 @@ export default function PaymentSuccessPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [router]);
+  }, [router, fetchMe]);
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center p-4 text-center">
@@ -76,5 +78,13 @@ export default function PaymentSuccessPage() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[80vh] flex items-center justify-center">Loading...</div>}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
