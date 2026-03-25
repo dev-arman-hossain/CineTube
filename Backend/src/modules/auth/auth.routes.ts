@@ -30,4 +30,16 @@ router.patch(
 // Avatar upload – available to any authenticated user (not admin-only)
 router.post('/avatar', auth, upload.single('image'), AuthController.uploadAvatar);
 
+router.post(
+  '/forgot-password',
+  validateRequest(AuthValidation.forgotPasswordValidationSchema),
+  AuthController.forgotPassword,
+);
+
+router.post(
+  '/reset-password',
+  validateRequest(AuthValidation.resetPasswordValidationSchema),
+  AuthController.resetPassword,
+);
+
 export const AuthRoutes = router;

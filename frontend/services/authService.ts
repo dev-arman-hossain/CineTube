@@ -25,5 +25,15 @@ export const AuthService = {
     });
     return response.data.data; // returns updated user object
   },
+
+  forgotPassword: async (email: string): Promise<any> => {
+    const response = await apiClient.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  resetPassword: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/auth/reset-password', data);
+    return response.data;
+  },
 };
 

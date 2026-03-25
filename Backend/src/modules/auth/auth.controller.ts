@@ -75,10 +75,30 @@ const uploadAvatar = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const forgotPassword = catchAsync(async (req: Request, res: Response) => {
+  await AuthService.forgotPassword(req.body.email);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Reset link sent to your email',
+  });
+});
+
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  await AuthService.resetPassword(req.body);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Password reset successfully',
+  });
+});
+
 export const AuthController = {
   register,
   login,
   getMe,
   updateProfile,
   uploadAvatar,
+  forgotPassword,
+  resetPassword,
 };

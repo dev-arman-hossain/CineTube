@@ -16,5 +16,6 @@ export default {
   email_from: process.env.EMAIL_FROM,
   cloudinary_url: process.env.CLOUDINARY_URL,
   stripe_secret_key: process.env.STRIPE_SECRET_KEY,
-  stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET
+  stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+  client_url: process.env.FRONTEND_URL || 'http://localhost:3000'
 };

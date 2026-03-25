@@ -133,9 +133,123 @@ const updateProfile = async (email: string, payload: any) => {
   return result;
 };
 
+const forgotPassword = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  // Generate a random token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  // Hash the token for security in the database
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set token and expiry (1 hour)
+  await prisma.user.update({
+    where: { email },
+    data: {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: new Date(Date.now() + 3600000), // 1 hour from now
+    },
+  });
+
+  // Create reset link
+  const resetUrl = `${config.client_url}/reset-password/${resetToken}`;
+
+  // Always log the reset URL in development for easier testing
+  if (config.node_env === 'development') {
+    console.log('-----------------------------------------');
+    console.log('RESET PASSWORD URL (Development):');
+    console.log(resetUrl);
+    console.log('-----------------------------------------');
+  }
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+      <h2 style="color: #e50914; text-align: center;">CineTube Password Reset</h2>
+      <p>Hello ${user.name},</p>
+      <p>You requested a password reset. Please click the button below to reset your password. This link is valid for 1 hour.</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetUrl}" style="background-color: #e50914; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+      </div>
+      <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+      <p style="word-break: break-all; color: #555;">${resetUrl}</p>
+      <p>If you didn't request this, please ignore this email.</p>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+      <p style="font-size: 12px; color: #888; text-align: center;">&copy; 2026 CineTube. All rights reserved.</p>
+    </div>
+  `;
+
+  try {
+    await sendEmail(email, 'CineTube - Reset Your Password', html);
+  } catch (error: any) {
+    // Log the error for the developer
+    console.error('Email sending failed:', error.message);
+
+    // In development, we don't want to block the flow if email fails (since the link is logged anyway)
+    if (config.node_env === 'development') {
+      return;
+    }
+
+    // If email fails in production, clear the token and throw error
+    await prisma.user.update({
+      where: { email },
+      data: {
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      },
+    });
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'Error sending reset email. Please check SMTP configuration.');
+  }
+};
+
+const resetPassword = async (payload: any) => {
+  const { token, newPassword } = payload;
+
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
+
+  const user = await prisma.user.findFirst({
+    where: {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: {
+        gt: new Date(),
+      },
+    },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid or expired token');
+  }
+
+  // Hash new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  // Update password and clear token
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    },
+  });
+};
+
 export const AuthService = {
   register,
   login,
   getMe,
   updateProfile,
+  forgotPassword,
+  resetPassword,
 };
