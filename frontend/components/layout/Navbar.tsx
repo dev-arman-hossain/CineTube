@@ -239,7 +239,12 @@ const Navbar = () => {
                   )}
                 </div>
                 <div className="hidden lg:block text-left">
-                   <p className="text-[10px] font-black text-muted-foreground uppercase leading-none mb-0.5">Account</p>
+                   <div className="flex items-center gap-1.5 leading-none mb-0.5">
+                     <p className="text-[10px] font-black text-muted-foreground uppercase">Account</p>
+                     {(user as any)?.isPremium && (
+                       <span className="text-[8px] bg-yellow-500 text-black px-1.5 rounded-full font-black animate-pulse">PRO</span>
+                     )}
+                   </div>
                    <p className="text-xs font-bold text-white leading-none truncate max-w-20">{user?.name?.split(' ')[0]}</p>
                 </div>
                 <ChevronDown className={cn("w-4 h-4 text-secondary-foreground transition-transform duration-300", isProfileOpen && "rotate-180")} />
@@ -254,7 +259,12 @@ const Navbar = () => {
                     className="absolute right-0 mt-3 w-64 glass-dark border border-white/10 rounded-2xl p-2 shadow-2xl"
                   >
                     <div className="p-4 border-b border-white/5 mb-2">
-                       <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Signed in as</p>
+                       <div className="flex items-center justify-between mb-1">
+                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Signed in as</p>
+                         {(user as any)?.isPremium && (
+                           <span className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded-full font-black">PRO MEMBER</span>
+                         )}
+                       </div>
                        <p className="text-sm font-bold text-white truncate">{user?.name}</p>
                     </div>
                     

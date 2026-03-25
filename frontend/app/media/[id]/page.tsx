@@ -26,7 +26,7 @@ export default function MediaDetailsPage() {
   const [media, setMedia] = useState<Media | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [inWatchlist, setInWatchlist] = useState(false);
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   const fetchMedia = async () => {
     try {
@@ -251,16 +251,18 @@ export default function MediaDetailsPage() {
           </div>
 
           {/* Ad/Promo Placeholder */}
-          <div className="aspect-4/5 bg-linear-to-br from-primary/20 to-secondary rounded-3xl border border-white/5 flex items-center justify-center p-8 text-center overflow-hidden relative">
-             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
-             <div className="relative z-10 space-y-4">
-               <h4 className="text-xl font-bold font-outfit">Join the CineTube Pro</h4>
-               <p className="text-xs text-secondary-foreground">Unlock exclusive premium titles and early access content.</p>
-               <button className="px-6 py-2.5 bg-white text-black rounded-lg text-xs font-black uppercase tracking-widest hover:scale-105 transition-transform">
-                 Upgrade Now
-               </button>
-             </div>
-          </div>
+          {!(user as any)?.isPremium && (
+            <div className="aspect-4/5 bg-linear-to-br from-primary/20 to-secondary rounded-3xl border border-white/5 flex items-center justify-center p-8 text-center overflow-hidden relative">
+               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
+               <div className="relative z-10 space-y-4">
+                 <h4 className="text-xl font-bold font-outfit">Join the CineTube Pro</h4>
+                 <p className="text-xs text-secondary-foreground">Unlock exclusive premium titles and early access content.</p>
+                 <button className="px-6 py-2.5 bg-white text-black rounded-lg text-xs font-black uppercase tracking-widest hover:scale-105 transition-transform">
+                   Upgrade Now
+                 </button>
+               </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -29,6 +29,8 @@ const register = async (payload: any) => {
       name: true,
       email: true,
       role: true,
+      isPremium: true,
+      subscriptionStatus: true,
       avatar: true,
       createdAt: true,
     },
@@ -102,6 +104,8 @@ const getMe = async (email: string) => {
       email: true,
       role: true,
       avatar: true,
+      isPremium: true,
+      subscriptionStatus: true,
       createdAt: true,
     },
   });

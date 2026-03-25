@@ -147,10 +147,17 @@ export default function PricingPage() {
 
             <button
               onClick={() => !plan.disabled && handleSubscription(plan.id!, plan.type as any)}
-              disabled={plan.disabled || loadingId === plan.id}
+              disabled={plan.disabled || loadingId === plan.id || ((user as any)?.isPremium && plan.type === 'subscription')}
               className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${plan.buttonClass} disabled:opacity-50`}
             >
-              {loadingId === plan.id ? 'Loading...' : plan.buttonText}
+              {loadingId === plan.id 
+                ? 'Loading...' 
+                : ((user as any)?.isPremium && plan.type === 'subscription' && (user as any)?.subscriptionStatus === (plan.name.toLowerCase().includes('monthly') ? 'active' : 'yearly_active')) // Note: simple check for now
+                  ? 'Current Plan'
+                  : ((user as any)?.isPremium && plan.type === 'subscription')
+                    ? 'Subscribed'
+                    : plan.buttonText
+              }
             </button>
             
             {plan.popular && (

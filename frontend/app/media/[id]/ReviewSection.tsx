@@ -109,8 +109,13 @@ const ReviewSection = ({ mediaId, onReviewSubmitted }: ReviewSectionProps) => {
                     <span className="text-primary font-black text-sm">{review.user?.name?.[0].toUpperCase() || 'U'}</span>
                   </div>
                   <div>
+                  <div className="flex items-center gap-2">
                     <h4 className="text-sm font-bold text-white">{review.user?.name || 'Anonymous User'}</h4>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString()}</p>
+                    {review.user?.isPremium && (
+                      <span className="text-[8px] bg-yellow-500 text-black px-1.5 py-0.5 rounded-full font-black">PRO</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10">

@@ -50,6 +50,7 @@ const getAllReviews = async (query: any) => {
           id: true,
           name: true,
           avatar: true,
+          isPremium: true,
         },
       },
       media: {
