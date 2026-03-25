@@ -60,6 +60,9 @@ export default function MediaDetailsPage() {
   const handleWatchlistToggle = async () => {
     if (!isAuthenticated) return router.push('/login');
     try {
+      const result = await WatchlistService.toggleWatchlist(id as string);
+      setInWatchlist(result.data.added);
+      queryClient.invalidateQueries({ queryKey: ['watchlist'] });
       toast.success(result.data.added ? 'Added to watchlist' : 'Removed from watchlist');
     } catch (error) {
       toast.error('Failed to update watchlist');
