@@ -6,6 +6,7 @@ import { CommentRoutes } from '../modules/comment/comment.routes';
 import { WatchlistRoutes } from '../modules/watchlist/watchlist.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
+import { PaymentRoutes } from '../modules/payment/payment.routes';
 
 const router = Router();
 
@@ -37,6 +38,10 @@ const moduleRoutes = [
   {
     path: '/notifications',
     route: NotificationRoutes,
+  },
+  {
+    path: '/payment',
+    route: PaymentRoutes,
   },
 ];
 

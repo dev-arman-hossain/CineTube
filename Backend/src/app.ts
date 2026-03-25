@@ -9,14 +9,13 @@ import morgan from 'morgan';
 const app: Application = express();
 
 // parsers
-app.use(express.json());
-app.use(cookieParser());
 app.use(morgan('dev'));
 
-app.post('/webhook', express.raw({ type: 'application/json' }), (req: Request, res: Response) => {
-  console.log("Weekhook recived", req.body);
-  res.status(200).json({ message: "Webhook recived" });
-});
+// Stripe Webhook - MUST be before express.json() for signature verification
+import { PaymentController } from './modules/payment/payment.controller';
+app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), PaymentController.handleWebhook);
+
+app.use(express.json());
 
 app.use(cors({
   origin: [process.env.FRONTEND_URL || 'http://localhost:3000'],

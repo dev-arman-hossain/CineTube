@@ -36,7 +36,8 @@ const getFeaturedMedia = catchAsync(async (req: Request, res: Response) => {
 
 const getMediaById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await MediaService.getMediaById(id as string);
+  const user = (req as any).user;
+  const result = await MediaService.getMediaById(id as string, user);
 
   res.status(httpStatus.OK).json({
     success: true,

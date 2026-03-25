@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Play, Star, Plus } from 'lucide-react';
+import { Play, Star, Plus, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Media } from '@/types';
 import Image from 'next/image';
@@ -69,7 +69,8 @@ const MediaCard = ({ media }: MediaCardProps) => {
 
       {/* Premium Badge */}
       {media.contentType === 'PREMIUM' && (
-        <div className="absolute top-3 right-3 z-20 bg-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg">
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg">
+          {media.isLocked && <Lock className="w-2.5 h-2.5" />}
           PREMIUM
         </div>
       )}

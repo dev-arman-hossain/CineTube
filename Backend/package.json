@@ -14,7 +14,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write .",
     "postinstall": "prisma generate",
-    "stripe:webhook": "stripe listen --forward-to localhost:5000/webhook"
+    "stripe:webhook": "stripe listen --forward-to localhost:5000/api/payment/webhook"
   },
   "keywords": [
     "express",

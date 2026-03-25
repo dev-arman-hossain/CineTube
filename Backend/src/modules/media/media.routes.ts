@@ -5,6 +5,7 @@ import { MediaValidation } from './media.validation';
 import auth from '../../middlewares/auth.middleware';
 import requireRole from '../../middlewares/role.middleware';
 import { upload } from '../../utils/cloudinary';
+import optionalAuth from '../../middlewares/optionalAuth.middleware';
 
 const router = Router();
 
@@ -50,7 +51,7 @@ router.get('/tmdb-search', auth, requireRole('ADMIN'), async (req: Request, res:
   }
 });
 
-router.get('/:id', MediaController.getMediaById);
+router.get('/:id', optionalAuth, MediaController.getMediaById);
 
 router.post(
   '/upload',

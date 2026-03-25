@@ -10,6 +10,7 @@ export interface User {
   role: Role;
   avatar?: string;
   createdAt: string;
+  isPremium?: boolean;
 }
 
 export interface Media {
@@ -28,6 +29,7 @@ export interface Media {
   avgRating: number;
   totalRatings: number;
   reviews?: Review[];
+  isLocked?: boolean;
 }
 
 export interface Review {

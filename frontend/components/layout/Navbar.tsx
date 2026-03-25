@@ -95,6 +95,7 @@ const Navbar = () => {
     { name: 'Home', href: '/' },
     { name: 'Movies', href: '/movies' },
     { name: 'Series', href: '/series' },
+    { name: 'Pricing', href: '/pricing' },
   ];
 
   return (

@@ -8,7 +8,7 @@ import { MediaService } from '@/services/mediaService';
 import { WatchlistService } from '@/services/watchlistService';
 import { useAuthStore } from '@/store/authStore';
 import { Media } from '@/types';
-import { Play, Star, Calendar, Clock, Globe, User, Plus, Check, Bookmark } from 'lucide-react';
+import { Play, Star, Calendar, Clock, Globe, User, Plus, Check, Bookmark, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import ReviewSection from './ReviewSection';
@@ -141,14 +141,24 @@ export default function MediaDetailsPage() {
             transition={{ delay: 0.2 }}
             className="flex flex-wrap items-center gap-4"
           >
-            <a 
-              href={media.streamingLink || '#'} 
-              target="_blank"
-              className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-xl font-bold hover:bg-rose-700 transition-all shadow-xl shadow-primary/20"
-            >
-              <Play className="w-5 h-5 fill-white" />
-              Watch Now
-            </a>
+            {media.isLocked ? (
+              <button 
+                onClick={() => router.push('/pricing')}
+                className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-xl font-bold hover:bg-rose-700 transition-all shadow-xl shadow-primary/20"
+              >
+                <Lock className="w-5 h-5 fill-white" />
+                Unlock Premium
+              </button>
+            ) : (
+              <a 
+                href={media.streamingLink || '#'} 
+                target="_blank"
+                className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-xl font-bold hover:bg-rose-700 transition-all shadow-xl shadow-primary/20"
+              >
+                <Play className="w-5 h-5 fill-white" />
+                Watch Now
+              </a>
+            )}
             <button 
               onClick={handleWatchlistToggle}
               className={cn(

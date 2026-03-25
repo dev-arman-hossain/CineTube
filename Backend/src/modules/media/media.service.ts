@@ -98,7 +98,7 @@ const getFeaturedMedia = async () => {
   return result;
 };
 
-const getMediaById = async (id: string) => {
+const getMediaById = async (id: string, user?: any) => {
   const result = await prisma.media.findUnique({
     where: { id },
     include: {
@@ -116,6 +116,20 @@ const getMediaById = async (id: string) => {
       },
     },
   });
+
+  if (result && result.contentType === 'PREMIUM') {
+    const isAdmin = user?.role === 'ADMIN';
+    const isPremium = user?.isPremium === true;
+
+    if (!isAdmin && !isPremium) {
+      return {
+        ...result,
+        streamingLink: null,
+        isLocked: true,
+      } as any;
+    }
+  }
+
   return result;
 };
 
