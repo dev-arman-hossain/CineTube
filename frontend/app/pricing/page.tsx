@@ -25,7 +25,7 @@ const plans = [
   },
   {
     name: 'Pro Monthly',
-    id: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_1TC4xwLpRxg0enN5mNNIENoY',
+    id: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_1TF0MWLpRxg0enN5bFP11dj0',
     price: '$9.99',
     period: '/month',
     description: 'Unlock all premium titles and features',
@@ -43,7 +43,7 @@ const plans = [
   },
   {
     name: 'Yearly Pro',
-    id: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID || 'price_1TC4z3LpRxg0enN54tffF9AH',
+    id: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID || 'price_1TF0MZLpRxg0enN5SLYlnkwP',
     price: '$99.99',
     period: '/year',
     description: 'One-time payment for perpetual premium access',
