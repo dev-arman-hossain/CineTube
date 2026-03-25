@@ -45,11 +45,11 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
 
 const uploadAvatar = catchAsync(async (req: Request, res: Response) => {
   const file = (req as any).file;
-  
+
   if (!file) {
-    res.status(400).json({ 
-      success: false, 
-      message: 'No file uploaded' 
+    res.status(400).json({
+      success: false,
+      message: 'No file uploaded'
     });
     return;
   }
@@ -57,7 +57,7 @@ const uploadAvatar = catchAsync(async (req: Request, res: Response) => {
   // Extract the secure URL from Cloudinary response
   // multer-storage-cloudinary stores the full path in req.file.path
   const avatarUrl = file.path || file.secure_url;
-  
+
   if (!avatarUrl) {
     res.status(400).json({
       success: false,

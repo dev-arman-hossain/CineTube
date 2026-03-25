@@ -81,13 +81,13 @@ const CommentSection = ({ reviewId }: CommentSectionProps) => {
               </div>
               <div className="flex-grow space-y-1">
                 <div className="flex items-center justify-between">
-                   <h5 className="text-[10px] font-bold text-white">{comment.user?.name}</h5>
-                   <p className="text-[8px] text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString()}</p>
+                  <h5 className="text-[10px] font-bold text-white">{comment.user?.name}</h5>
+                  <p className="text-[8px] text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString()}</p>
                 </div>
                 <p className="text-xs text-secondary-foreground leading-snug">{comment.content}</p>
-                
+
                 {isAuthenticated && (user?.id === comment.userId || user?.id === comment.user?.id || user?.role === 'ADMIN') && (
-                  <button 
+                  <button
                     onClick={() => handleDelete(comment.id)}
                     className="text-[8px] text-primary hover:underline opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 pt-1"
                   >
