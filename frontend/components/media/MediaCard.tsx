@@ -1,16 +1,63 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Play, Star, Plus, Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { Play, Star, Plus, Lock, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Media } from '@/types';
 import Image from 'next/image';
+import { WatchlistService } from '@/services/watchlistService';
+import { useAuthStore } from '@/store/authStore';
+import toast from 'react-hot-toast';
 
 interface MediaCardProps {
   media: Media;
 }
 
 const MediaCard = ({ media }: MediaCardProps) => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuthStore();
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const checkWatchlist = async () => {
+        try {
+          const response = await WatchlistService.getMyWatchlist();
+          // The backend returns { success: true, data: [ { id, mediaId, ... }, ... ] }
+          const exists = response.data.some((item: any) => item.mediaId === media.id);
+          setInWatchlist(exists);
+        } catch (error) {
+          console.error('Failed to check watchlist:', error);
+        }
+      };
+      checkWatchlist();
+    }
+  }, [media.id, isAuthenticated]);
+
+  const handleWatchlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) return router.push('/login');
+    
+    try {
+      setIsToggling(true);
+      const result = await WatchlistService.toggleWatchlist(media.id);
+      setInWatchlist(result.data.added);
+      queryClient.invalidateQueries({ queryKey: ['watchlist'] });
+      toast.success(result.data.added ? 'Added to watchlist' : 'Removed from watchlist');
+    } catch (error) {
+      toast.error('Failed to update watchlist');
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   const posterUrl = media.posterUrl || 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop';
 
   return (
@@ -60,8 +107,12 @@ const MediaCard = ({ media }: MediaCardProps) => {
               <Play className="w-3 h-3 fill-white" />
               Details
             </Link>
-            <button className="p-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all backdrop-blur-md">
-              <Plus className="w-3 h-3" />
+            <button 
+              onClick={handleWatchlistToggle} 
+              disabled={isToggling}
+              className={`p-2 rounded-lg transition-all backdrop-blur-md ${inWatchlist ? 'bg-primary text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+              {inWatchlist ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
             </button>
           </div>
         </div>
