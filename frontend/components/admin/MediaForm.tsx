@@ -18,6 +18,7 @@ const mediaSchema = z.object({
   cast: z.string(), // Will split by comma
   platform: z.string(), // Will split by comma
   posterUrl: z.string().url().optional().or(z.literal('')),
+  backdropUrl: z.string().url().optional().or(z.literal('')),
   streamingLink: z.string().url().optional().or(z.literal('')),
   type: z.enum(['MOVIE', 'SERIES']),
   contentType: z.enum(['FREE', 'PREMIUM']),
@@ -65,6 +66,23 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
       toast.success('Image uploaded successfully', { id: toastId });
     } catch (error) {
       toast.error('Failed to upload image', { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackdropUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsLoading(true);
+    const toastId = toast.loading('Uploading backdrop...');
+    try {
+      const response = await (MediaService as any).uploadMedia(file);
+      setValue('backdropUrl', response.data);
+      toast.success('Backdrop uploaded successfully', { id: toastId });
+    } catch (error) {
+      toast.error('Failed to upload backdrop', { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -132,9 +150,24 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
             />
           </div>
 
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Upload Backdrop (Wide Image)</label>
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={handleBackdropUpload}
+              className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
+            />
+          </div>
+
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Poster URL (Direct Link)</label>
             <input {...register('posterUrl')} className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all" placeholder="https://..." />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Backdrop URL (Direct Link)</label>
+            <input {...register('backdropUrl')} className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all" placeholder="https://..." />
           </div>
 
           <div className="space-y-2">

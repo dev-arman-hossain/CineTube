@@ -27,7 +27,7 @@ export default function HomeView({ featured, trending, newReleases, topRated = [
         <section className="relative h-[85vh] w-full flex items-center px-4 md:px-12 overflow-hidden">
           <div className="absolute inset-0 bg-linear-to-r from-black via-black/60 to-transparent z-10" />
           <Image 
-            src={featured.posterUrl || 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop'}
+            src={featured.backdropUrl || featured.posterUrl || 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop'}
             alt={featured.title}
             fill
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 scale-105"

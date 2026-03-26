@@ -103,6 +103,7 @@ model Media {
   cast          String[]
   platform      String[]
   posterUrl     String?
+  backdropUrl   String?
   streamingLink String?
   type          MediaType
   contentType   ContentType @default(FREE)

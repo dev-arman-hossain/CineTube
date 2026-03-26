@@ -23,6 +23,7 @@ export interface Media {
   cast: string[];
   platform: string[];
   posterUrl?: string;
+  backdropUrl?: string;
   streamingLink?: string;
   type: MediaType;
   contentType: ContentType;
