@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import router from './routes';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './middlewares/notFound';
+import { maintenanceMiddleware } from './middlewares/maintenance';
 import morgan from 'morgan';
 
 const app: Application = express();
@@ -21,6 +22,9 @@ app.use(cors({
   origin: [process.env.FRONTEND_URL || 'http://localhost:3000'],
   credentials: true
 }));
+
+// maintenance check
+app.use(maintenanceMiddleware);
 
 // application routes
 app.use('/api', router);

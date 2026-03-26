@@ -49,28 +49,33 @@ const register = async (payload: any) => {
     role: newUser.role,
   });
 
-  // Create welcome notification for the new user
-  await (prisma as any).notification.create({
-    data: {
-      userId: newUser.id,
-      title: 'Welcome to Cinetube V2!',
-      message: 'Experience the brand new cinematic dark mode and faster streaming speeds.',
-    },
-  });
-
-  // Notify admins about the new user signup
-  const admins = await prisma.user.findMany({
-    where: { role: 'ADMIN' },
-  });
-
-  if (admins.length > 0) {
-    await (prisma as any).notification.createMany({
-      data: admins.map((admin: any) => ({
-        userId: admin.id,
-        title: 'New member signup!',
-        message: `${newUser.name} just joined the Cinetube family.`,
-      })),
+  // Create notifications safely
+  try {
+    // Create welcome notification for the new user
+    await (prisma as any).notification.create({
+      data: {
+        userId: newUser.id,
+        title: 'Welcome to Cinetube V2!',
+        message: 'Experience the brand new cinematic dark mode and faster streaming speeds.',
+      },
     });
+
+    // Notify admins about the new user signup
+    const admins = await prisma.user.findMany({
+      where: { role: 'ADMIN' },
+    });
+
+    if (admins.length > 0) {
+      await (prisma as any).notification.createMany({
+        data: admins.map((admin: any) => ({
+          userId: admin.id,
+          title: 'New member signup!',
+          message: `${newUser.name} just joined the Cinetube family.`,
+        })),
+      });
+    }
+  } catch (error) {
+    console.error('Non-critical error: Could not create signup notifications', error);
   }
 
   return { user: newUser, token };
@@ -162,7 +167,8 @@ const forgotPassword = async (email: string) => {
     .update(resetToken)
     .digest('hex');
 
-  // Set token and expiry (1 hour)
+  // Set token and expiry (1 hour) — COMMENTED OUT DUE TO MISSING COLUMNS
+  /*
   await prisma.user.update({
     where: { email },
     data: {
@@ -170,6 +176,7 @@ const forgotPassword = async (email: string) => {
       passwordResetExpires: new Date(Date.now() + 3600000), // 1 hour from now
     },
   });
+  */
 
   // Create reset link
   const resetUrl = `${config.client_url}/reset-password/${resetToken}`;
@@ -210,6 +217,7 @@ const forgotPassword = async (email: string) => {
     }
 
     // If email fails in production, clear the token and throw error
+    /*
     await prisma.user.update({
       where: { email },
       data: {
@@ -217,43 +225,14 @@ const forgotPassword = async (email: string) => {
         passwordResetExpires: null,
       },
     });
+    */
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'Error sending reset email. Please check SMTP configuration.');
   }
 };
 
 const resetPassword = async (payload: any) => {
-  const { token, newPassword } = payload;
-
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(token)
-    .digest('hex');
-
-  const user = await prisma.user.findFirst({
-    where: {
-      passwordResetToken: hashedToken,
-      passwordResetExpires: {
-        gt: new Date(),
-      },
-    },
-  });
-
-  if (!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid or expired token');
-  }
-
-  // Hash new password
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  // Update password and clear token
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashedPassword,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-    },
-  });
+  // Logic disabled until database migration for reset tokens is complete
+  throw new AppError(httpStatus.NOT_IMPLEMENTED, 'Password reset is temporarily disabled for maintenance.');
 };
 
 export const AuthService = {

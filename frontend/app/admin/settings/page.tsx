@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Settings, Save, Bell, Shield, Moon, Monitor, Trash2 } from 'lucide-react';
 import { AdminAppService } from '@/services/adminService';
@@ -15,15 +15,38 @@ export default function AdminSettings() {
     emailNotifications: true,
   });
 
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
-  const handleSave = () => {
-    setIsSaving(true);
-    setTimeout(() => {
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await AdminAppService.getSettings();
+        if (response.success) {
+          setFormData(response.data);
+        }
+      } catch (error) {
+        toast.error('Failed to load settings');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const response = await AdminAppService.updateSettings(formData);
+      if (response.success) {
+        toast.success('Settings saved successfully!');
+      }
+    } catch (error) {
+      toast.error('Failed to save settings');
+    } finally {
       setIsSaving(false);
-      toast.success('Settings saved successfully!');
-    }, 1000);
+    }
   };
 
   const handleClearCache = async () => {
@@ -97,118 +120,128 @@ export default function AdminSettings() {
 
         {/* Settings Form Content */}
         <div className="md:col-span-9">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-neutral-900 border border-white/10 rounded-3xl p-8"
-          >
-            {activeTab === 'general' && (
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-xl font-bold mb-1">General Info</h3>
-                  <p className="text-sm text-neutral-400 mb-6">Basic platform details and contact information.</p>
-                  
-                  <div className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-bold text-neutral-300 mb-2">Platform Name</label>
-                      <input 
-                        type="text" 
-                        value={formData.siteName}
-                        onChange={(e) => setFormData({...formData, siteName: e.target.value})}
-                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-neutral-300 mb-2">Support Email Address</label>
-                      <input 
-                        type="email" 
-                        value={formData.supportEmail}
-                        onChange={(e) => setFormData({...formData, supportEmail: e.target.value})}
-                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      />
+          {isLoading ? (
+            <div className="bg-neutral-900 border border-white/10 rounded-3xl p-8 animate-pulse space-y-8">
+              <div className="h-8 bg-white/5 rounded-lg w-1/3"></div>
+              <div className="space-y-4">
+                <div className="h-12 bg-white/5 rounded-xl w-full"></div>
+                <div className="h-12 bg-white/5 rounded-xl w-full"></div>
+              </div>
+            </div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-neutral-900 border border-white/10 rounded-3xl p-8"
+            >
+              {activeTab === 'general' && (
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">General Info</h3>
+                    <p className="text-sm text-neutral-400 mb-6">Basic platform details and contact information.</p>
+                    
+                    <div className="space-y-5">
+                      <div>
+                        <label className="block text-sm font-bold text-neutral-300 mb-2">Platform Name</label>
+                        <input 
+                          type="text" 
+                          value={formData.siteName}
+                          onChange={(e) => setFormData({...formData, siteName: e.target.value})}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-neutral-300 mb-2">Support Email Address</label>
+                        <input 
+                          type="email" 
+                          value={formData.supportEmail}
+                          onChange={(e) => setFormData({...formData, supportEmail: e.target.value})}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
+
+                  <hr className="border-white/10" />
+
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">Maintenance Mode</h3>
+                    <p className="text-sm text-neutral-400 mb-6">Take the application offline for updates.</p>
+                    
+                    <label className="flex items-center justify-between p-4 bg-black rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors">
+                      <div>
+                        <p className="font-bold text-white">Enable Maintenance</p>
+                        <p className="text-xs text-neutral-500 mt-1">Users will see a "Down for maintenance" screen.</p>
+                      </div>
+                      <div className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 ${formData.maintenanceMode ? 'bg-primary' : 'bg-neutral-800'}`} onClick={() => setFormData({...formData, maintenanceMode: !formData.maintenanceMode})}>
+                        <motion.div 
+                          className="w-6 h-6 bg-white rounded-full"
+                          animate={{ x: formData.maintenanceMode ? 24 : 0 }}
+                        />
+                      </div>
+                    </label>
+                  </div>
                 </div>
+              )}
 
-                <hr className="border-white/10" />
-
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Maintenance Mode</h3>
-                  <p className="text-sm text-neutral-400 mb-6">Take the application offline for updates.</p>
+              {activeTab === 'notifications' && (
+                <div className="space-y-8">
+                  <h3 className="text-xl font-bold mb-1">Email Configurations</h3>
+                  <p className="text-sm text-neutral-400 mb-6">Manage how the system communicates with admins and users.</p>
                   
                   <label className="flex items-center justify-between p-4 bg-black rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors">
                     <div>
-                      <p className="font-bold text-white">Enable Maintenance</p>
-                      <p className="text-xs text-neutral-500 mt-1">Users will see a "Down for maintenance" screen.</p>
+                      <p className="font-bold text-white">System Alerts</p>
+                      <p className="text-xs text-neutral-500 mt-1">Receive emails for new user signups and payment failures.</p>
                     </div>
-                    <div className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 ${formData.maintenanceMode ? 'bg-primary' : 'bg-neutral-800'}`} onClick={() => setFormData({...formData, maintenanceMode: !formData.maintenanceMode})}>
+                    <div className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 ${formData.emailNotifications ? 'bg-primary' : 'bg-neutral-800'}`} onClick={() => setFormData({...formData, emailNotifications: !formData.emailNotifications})}>
                       <motion.div 
                         className="w-6 h-6 bg-white rounded-full"
-                        animate={{ x: formData.maintenanceMode ? 24 : 0 }}
+                        animate={{ x: formData.emailNotifications ? 24 : 0 }}
                       />
                     </div>
                   </label>
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === 'notifications' && (
-              <div className="space-y-8">
-                <h3 className="text-xl font-bold mb-1">Email Configurations</h3>
-                <p className="text-sm text-neutral-400 mb-6">Manage how the system communicates with admins and users.</p>
-                
-                <label className="flex items-center justify-between p-4 bg-black rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors">
+              {activeTab === 'appearance' && (
+                <div className="space-y-8 text-center py-10">
+                  <Monitor className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold">Theme Configuration</h3>
+                  <p className="text-neutral-400 max-w-sm mx-auto">Admin theme configuration is coming soon. The platform currently exclusively supports Dark Mode for a cinematic experience.</p>
+                </div>
+              )}
+
+              {activeTab === 'security' && (
+                <div className="space-y-8">
                   <div>
-                    <p className="font-bold text-white">System Alerts</p>
-                    <p className="text-xs text-neutral-500 mt-1">Receive emails for new user signups and payment failures.</p>
-                  </div>
-                  <div className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 ${formData.emailNotifications ? 'bg-primary' : 'bg-neutral-800'}`} onClick={() => setFormData({...formData, emailNotifications: !formData.emailNotifications})}>
-                    <motion.div 
-                      className="w-6 h-6 bg-white rounded-full"
-                      animate={{ x: formData.emailNotifications ? 24 : 0 }}
-                    />
-                  </div>
-                </label>
-              </div>
-            )}
-
-            {activeTab === 'appearance' && (
-              <div className="space-y-8 text-center py-10">
-                <Monitor className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold">Theme Configuration</h3>
-                <p className="text-neutral-400 max-w-sm mx-auto">Admin theme configuration is coming soon. The platform currently exclusively supports Dark Mode for a cinematic experience.</p>
-              </div>
-            )}
-
-            {activeTab === 'security' && (
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-xl font-bold mb-1 text-red-500 flex items-center gap-2">
-                    <Trash2 className="w-5 h-5" /> Danger Zone
-                  </h3>
-                  <p className="text-sm text-neutral-400 mb-6">Irreversible actions that affect the entire application state.</p>
-                  
-                  <div className="border border-red-500/20 bg-red-500/5 p-6 rounded-2xl space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
-                       <div>
-                         <p className="font-bold text-white">Clear All Cache</p>
-                         <p className="text-xs text-neutral-400 mt-1">Forces all users to re-fetch images and assets.</p>
-                       </div>
-                       <button 
-                         onClick={handleClearCache}
-                         disabled={isClearing}
-                         className="px-5 py-2.5 bg-neutral-900 border border-white/10 hover:bg-red-500 hover:text-white transition-colors rounded-xl text-sm font-bold whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                       >
-                         {isClearing ? 'Clearing...' : 'Clear Cache'}
-                       </button>
+                    <h3 className="text-xl font-bold mb-1 text-red-500 flex items-center gap-2">
+                      <Trash2 className="w-5 h-5" /> Danger Zone
+                    </h3>
+                    <p className="text-sm text-neutral-400 mb-6">Irreversible actions that affect the entire application state.</p>
+                    
+                    <div className="border border-red-500/20 bg-red-500/5 p-6 rounded-2xl space-y-4">
+                      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
+                         <div>
+                           <p className="font-bold text-white">Clear All Cache</p>
+                           <p className="text-xs text-neutral-400 mt-1">Forces all users to re-fetch images and assets.</p>
+                         </div>
+                         <button 
+                           onClick={handleClearCache}
+                           disabled={isClearing}
+                           className="px-5 py-2.5 bg-neutral-900 border border-white/10 hover:bg-red-500 hover:text-white transition-colors rounded-xl text-sm font-bold whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                         >
+                           {isClearing ? 'Clearing...' : 'Clear Cache'}
+                         </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </motion.div>
+              )}
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

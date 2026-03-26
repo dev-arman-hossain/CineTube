@@ -21,6 +21,17 @@ const globalErrorHandler = (
         message: issue.message,
       };
     });
+  } else if (err?.name === 'PrismaClientKnownRequestError') {
+    statusCode = 400;
+    message = 'Database Error';
+    errorMessages = [
+      {
+        path: err.code || '',
+        message: err.message || 'A database error occurred',
+      },
+    ];
+    console.error('--- PRISMA ERROR ---');
+    console.error(err);
   } else if (err instanceof Error) {
     message = err?.message;
     errorMessages = [
@@ -29,6 +40,12 @@ const globalErrorHandler = (
         message: err?.message,
       },
     ];
+  }
+
+  // Log all errors in development
+  if (config.node_env === 'development') {
+    console.error('--- ERROR HANDLER ---');
+    console.error(err);
   }
 
   return res.status(statusCode).json({

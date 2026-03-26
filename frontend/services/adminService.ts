@@ -30,4 +30,14 @@ export const AdminAppService = {
     const response = await apiClient.post('/admin/clear-cache');
     return response.data;
   },
+
+  getSettings: async () => {
+    const response = await apiClient.get('/admin/settings');
+    return response.data;
+  },
+
+  updateSettings: async (data: any) => {
+    const response = await apiClient.post('/admin/settings', data);
+    return response.data;
+  },
 };

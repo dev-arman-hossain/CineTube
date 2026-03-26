@@ -110,6 +110,33 @@ const handleWebhook = async (sig: string, payload: Buffer) => {
           },
         });
       }
+
+      // SEND NOTIFICATIONS SAFELY AFTER PAYMENT IS RECORDED
+      try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (user) {
+          await (prisma as any).notification.create({
+            data: {
+              userId,
+              title: '🎉 Premium Activated!',
+              message: 'You now have full access to all premium content.',
+            },
+          });
+
+          const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+          if (admins.length > 0) {
+            await (prisma as any).notification.createMany({
+              data: admins.map((admin: any) => ({
+                userId: admin.id,
+                title: '💳 New Premium Upgrade!',
+                message: `${user.name} just upgraded to CineTube Premium.`,
+              })),
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Non-critical notification error in webhook:', err);
+      }
       break;
     }
 
@@ -208,29 +235,33 @@ const verifySession = async (sessionId: string, userId: string) => {
     });
   }
 
-  // SEND NOTIFICATIONS
-  // 1. Notify the user
-  await (prisma as any).notification.create({
-    data: {
-      userId,
-      title: '🎉 Premium Activated!',
-      message: 'You now have full access to all premium content. Enjoy your cinematic experience!',
-    },
-  });
-
-  // 2. Notify admins
-  const admins = await prisma.user.findMany({
-    where: { role: 'ADMIN' },
-  });
-
-  if (admins.length > 0) {
-    await (prisma as any).notification.createMany({
-      data: admins.map((admin: any) => ({
-        userId: admin.id,
-        title: '💳 New Premium Upgrade!',
-        message: `${user.name} just upgraded to CineTube Premium.`,
-      })),
+  // SEND NOTIFICATIONS SAFELY
+  try {
+    // 1. Notify the user
+    await (prisma as any).notification.create({
+      data: {
+        userId,
+        title: '🎉 Premium Activated!',
+        message: 'You now have full access to all premium content. Enjoy your cinematic experience!',
+      },
     });
+
+    // 2. Notify admins
+    const admins = await prisma.user.findMany({
+      where: { role: 'ADMIN' },
+    });
+
+    if (admins.length > 0) {
+      await (prisma as any).notification.createMany({
+        data: admins.map((admin: any) => ({
+          userId: admin.id,
+          title: '💳 New Premium Upgrade!',
+          message: `${user.name} just upgraded to CineTube Premium.`,
+        })),
+      });
+    }
+  } catch (error) {
+    console.error('Non-critical error: Could not create premium notifications', error);
   }
 
   return { success: true, isPremium: true };

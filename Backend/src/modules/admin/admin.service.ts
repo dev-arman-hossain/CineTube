@@ -1,5 +1,6 @@
 import { Role } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
+import { getSystemSettings, updateSystemSettings, SystemSettings } from '../../utils/settingsHelper';
 
 const getAllUsers = async () => {
   const result = await prisma.user.findMany({
@@ -69,6 +70,14 @@ const clearCache = async () => {
   return { success: true, timestamp: new Date() };
 };
 
+const getSettings = async () => {
+  return getSystemSettings();
+};
+
+const updateSettings = async (data: Partial<SystemSettings>) => {
+  return updateSystemSettings(data);
+};
+
 export const AdminService = {
   getAllUsers,
   updateUserRole,
@@ -76,4 +85,6 @@ export const AdminService = {
   suspendUser,
   deleteUser,
   clearCache,
+  getSettings,
+  updateSettings,
 };

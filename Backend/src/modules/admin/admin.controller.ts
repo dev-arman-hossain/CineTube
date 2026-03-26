@@ -69,6 +69,26 @@ const clearCache = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSettings = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.getSettings();
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Settings retrieved successfully',
+    data: result,
+  });
+});
+
+const updateSettings = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.updateSettings(req.body);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Settings updated successfully',
+    data: result,
+  });
+});
+
 export const AdminController = {
   getAllUsers,
   updateUserRole,
@@ -76,4 +96,6 @@ export const AdminController = {
   suspendUser,
   deleteUser,
   clearCache,
+  getSettings,
+  updateSettings,
 };

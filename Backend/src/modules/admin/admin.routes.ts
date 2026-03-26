@@ -14,5 +14,7 @@ router.patch('/users/:id/suspend', AdminController.suspendUser);
 router.delete('/users/:id', AdminController.deleteUser);
 router.get('/stats', AdminController.getStats);
 router.post('/clear-cache', AdminController.clearCache);
+router.get('/settings', AdminController.getSettings);
+router.post('/settings', AdminController.updateSettings);
 
 export const AdminRoutes = router;

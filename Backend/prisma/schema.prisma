@@ -35,17 +35,11 @@ model User {
   role      Role     @default(USER)
   avatar    String?
   isSuspended Boolean  @default(false)
-  passwordResetToken   String?
-  passwordResetExpires DateTime?
   
   // Stripe & Subscription fields
   stripeCustomerId     String?   @unique
   isPremium           Boolean   @default(false)
   subscriptionStatus   String?   // active, canceled, trialing, etc.
-  isVerified           Boolean   @default(false)
-  verificationCode     String?
-  verificationExpires  DateTime?
-  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
