@@ -17,8 +17,8 @@ const mediaSchema = z.object({
   director: z.string().min(1),
   cast: z.string(), // Will split by comma
   platform: z.string(), // Will split by comma
-  posterUrl: z.string().url().optional().or(z.literal('')),
-  backdropUrl: z.string().url().optional().or(z.literal('')),
+  posterUrl: z.string().optional().or(z.literal('')),
+  backdropUrl: z.string().optional().or(z.literal('')),
   streamingLink: z.string().url().optional().or(z.literal('')),
   type: z.enum(['MOVIE', 'SERIES']),
   contentType: z.enum(['FREE', 'PREMIUM']),
@@ -39,6 +39,7 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<MediaFormValues>({
     resolver: zodResolver(mediaSchema),
@@ -54,6 +55,10 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
     },
   });
 
+  // Watch for URL changes to trigger re-renders
+  const posterUrl = watch('posterUrl');
+  const backdropUrl = watch('backdropUrl');
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -61,10 +66,12 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
     setIsLoading(true);
     const toastId = toast.loading('Uploading image...');
     try {
-      const response = await (MediaService as any).uploadMedia(file);
-      setValue('posterUrl', response.data);
+      const url = await (MediaService as any).uploadMedia(file);
+      console.log('Poster URL received:', url);
+      setValue('posterUrl', url);
       toast.success('Image uploaded successfully', { id: toastId });
     } catch (error) {
+      console.error('Upload error:', error);
       toast.error('Failed to upload image', { id: toastId });
     } finally {
       setIsLoading(false);
@@ -78,10 +85,12 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
     setIsLoading(true);
     const toastId = toast.loading('Uploading backdrop...');
     try {
-      const response = await (MediaService as any).uploadMedia(file);
-      setValue('backdropUrl', response.data);
+      const url = await (MediaService as any).uploadMedia(file);
+      console.log('Backdrop URL received:', url);
+      setValue('backdropUrl', url);
       toast.success('Backdrop uploaded successfully', { id: toastId });
     } catch (error) {
+      console.error('Upload error:', error);
       toast.error('Failed to upload backdrop', { id: toastId });
     } finally {
       setIsLoading(false);
@@ -97,6 +106,8 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
       platform: data.platform.split(',').map(s => s.trim()),
     };
 
+    console.log('Submitting payload:', payload);
+
     try {
       if (initialData) {
         await MediaService.updateMedia(initialData.id, payload);
@@ -107,6 +118,7 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
       }
       onSuccess();
     } catch (error: any) {
+      console.error('Submit error:', error);
       toast.error(error.response?.data?.message || 'Failed to save media');
     } finally {
       setIsLoading(false);
@@ -142,32 +154,38 @@ const MediaForm = ({ initialData, onSuccess, onCancel }: MediaFormProps) => {
 
           <div className="space-y-2 md:col-span-2">
             <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Upload Poster</label>
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
-            />
+            <div className="space-y-2">
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
+              />
+              {posterUrl && (
+                <div className="text-xs text-green-500 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Poster URL auto-generated ✓
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2 md:col-span-2">
             <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Upload Backdrop (Wide Image)</label>
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={handleBackdropUpload}
-              className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Poster URL (Direct Link)</label>
-            <input {...register('posterUrl')} className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all" placeholder="https://..." />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-secondary-foreground">Backdrop URL (Direct Link)</label>
-            <input {...register('backdropUrl')} className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all" placeholder="https://..." />
+            <div className="space-y-2">
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={handleBackdropUpload}
+                className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
+              />
+              {backdropUrl && (
+                <div className="text-xs text-green-500 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Backdrop URL auto-generated ✓
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

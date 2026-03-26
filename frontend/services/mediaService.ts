@@ -13,7 +13,13 @@ export const MediaService = {
     const response = await apiClient.post('/media/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return response.data;
+    
+    if (!response.data?.data?.url) {
+      console.error('Upload response:', response.data);
+      throw new Error('No URL returned from upload');
+    }
+    
+    return response.data.data.url;
   },
 
   getMedia: async (params?: any) => {
