@@ -107,19 +107,20 @@ async function main() {
   }
 
   console.log('Seeding users...');
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  const userPassword = await bcrypt.hash('password123', 10);
 
   const users = [
     {
       name: 'Admin User',
-      email: 'admin@example.com',
-      password: hashedPassword,
+      email: 'admin@cinetube.com',
+      password: adminPassword,
       role: 'ADMIN',
     },
     {
       name: 'Test User',
       email: 'user@example.com',
-      password: hashedPassword,
+      password: userPassword,
       role: 'USER',
     }
   ];
