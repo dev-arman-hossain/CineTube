@@ -91,7 +91,7 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen py-20 px-4 md:px-12 bg-black relative overflow-hidden">
+    <div className="min-h-screen py-12 md:py-20 px-8 md:px-12 bg-black relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -z-10 opacity-50" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-900/10 rounded-full blur-[120px] -z-10 opacity-30" />
@@ -116,7 +116,7 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={`relative flex flex-col p-8 rounded-[2.5rem] bg-neutral-950 border border-white/5 shadow-2xl transition-all hover:border-primary/50 group ${plan.popular ? 'md:scale-105 z-10' : ''}`}
+            className={`relative flex flex-col p-8 rounded-[2.5rem] bg-neutral-950 border border-white/5 shadow-[0_0_50px_-12px_rgba(229,9,20,0.3)] transition-all hover:border-primary/50 hover:shadow-[0_0_50px_-12px_rgba(229,9,20,0.5)] group ${plan.popular ? 'md:scale-105 z-10' : ''}`}
           >
             {plan.popular && (
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1.5 border border-white/20">
