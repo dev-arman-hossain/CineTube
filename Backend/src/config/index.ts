@@ -17,5 +17,7 @@ export default {
   cloudinary_url: process.env.CLOUDINARY_URL,
   stripe_secret_key: process.env.STRIPE_SECRET_KEY,
   stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
-  client_url: process.env.FRONTEND_URL || 'http://localhost:3000'
+  client_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+  google_client_id: process.env.GOOGLE_CLIENT_ID,
+  google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
 };

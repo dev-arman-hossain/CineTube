@@ -11,6 +11,7 @@ import { Mail, Lock, User, Loader2, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { AuthService } from '@/services/authService';
+import { GoogleLogin } from '@react-oauth/google';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -46,6 +47,20 @@ const RegisterPage = () => {
       router.push('/');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    try {
+      const result = await AuthService.googleLogin({ idToken: credentialResponse.credential });
+      setAuth(result);
+      toast.success('Signed in with Google successfully!');
+      router.push('/');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Google Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +158,28 @@ const RegisterPage = () => {
           )}
         </button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10"></div>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-[#0f0f0f] px-2 text-muted-foreground whitespace-nowrap rounded-lg">Or continue with</span>
+        </div>
+      </div>
+
+      <div className="flex justify-center w-full">
+        <GoogleLogin
+          onSuccess={onGoogleSuccess}
+          onError={() => {
+            toast.error('Google Sign Up Failed');
+          }}
+          theme="filled_black"
+          shape="rectangular"
+          size="large"
+          width="100%"
+        />
+      </div>
 
       <div className="mt-8 text-center text-sm">
         <span className="text-secondary-foreground">Already have an account? </span>

@@ -235,6 +235,56 @@ const resetPassword = async (payload: any) => {
   throw new AppError(httpStatus.NOT_IMPLEMENTED, 'Password reset is temporarily disabled for maintenance.');
 };
 
+const googleLogin = async (payload: { idToken: string }) => {
+  const { OAuth2Client } = require('google-auth-library');
+  const client = new OAuth2Client(config.google_client_id);
+
+  let ticket;
+  try {
+    ticket = await client.verifyIdToken({
+      idToken: payload.idToken,
+      audience: config.google_client_id,
+    });
+  } catch (error) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid Google ID token');
+  }
+
+  const payloadData = ticket.getPayload();
+  if (!payloadData || !payloadData.email) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Google ID token missing email');
+  }
+
+  const { email, name, picture } = payloadData;
+
+  let user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    const randomPassword = crypto.randomBytes(16).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    user = await prisma.user.create({
+      data: {
+        email,
+        name: name || 'Google User',
+        password: hashedPassword,
+        avatar: picture,
+        role: 'USER',
+      },
+    });
+  }
+
+  const token = JwtUtils.generateToken({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  const { password, ...userWithoutPassword } = user;
+
+  return { user: userWithoutPassword, token };
+};
+
 export const AuthService = {
   register,
   login,
@@ -242,4 +292,5 @@ export const AuthService = {
   updateProfile,
   forgotPassword,
   resetPassword,
+  googleLogin,
 };

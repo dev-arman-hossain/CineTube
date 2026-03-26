@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 import QueryProvider from '@/components/providers/QueryProvider';
+import GoogleProvider from '@/components/providers/GoogleAuthProvider';
 
 export default function RootLayout({
   children,
@@ -46,9 +47,11 @@ export default function RootLayout({
         />
         <Navbar />
         <main className="flex-grow pt-20">
-          <QueryProvider>
-            {children}
-          </QueryProvider>
+          <GoogleProvider>
+            <QueryProvider>
+              {children}
+            </QueryProvider>
+          </GoogleProvider>
         </main>
         <Footer />
       </body>

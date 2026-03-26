@@ -12,6 +12,11 @@ export const AuthService = {
     return response.data.data;
   },
 
+  googleLogin: async (data: { idToken: string }): Promise<AuthResponse> => {
+    const response = await apiClient.post('/auth/google', data);
+    return response.data.data;
+  },
+
   updateProfile: async (data: any): Promise<any> => {
     const response = await apiClient.patch('/auth/profile', data);
     return response.data.data;
