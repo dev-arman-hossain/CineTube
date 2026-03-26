@@ -18,12 +18,27 @@ const toggleWatchlist = async (userId: string, mediaId: string) => {
     });
     return { added: false };
   } else {
+    const media = await prisma.media.findUnique({
+      where: { id: mediaId },
+      select: { title: true },
+    });
+
     await prisma.watchlist.create({
       data: {
         userId,
         mediaId,
       },
     });
+
+    // Notify user
+    await (prisma as any).notification.create({
+      data: {
+        userId,
+        title: '📌 Added to Watchlist',
+        message: `"${media?.title}" has been added to your watchlist.`,
+      },
+    });
+
     return { added: true };
   }
 };

@@ -8,7 +8,38 @@ const createComment = async (userId: string, payload: any) => {
       ...payload,
       userId,
     },
+    include: {
+      user: { select: { name: true } },
+    },
   });
+
+  // Notify the commenter
+  await (prisma as any).notification.create({
+    data: {
+      userId,
+      title: '💬 Comment Posted',
+      message: 'Your comment has been posted successfully.',
+    },
+  });
+
+  // If it's a reply, notify the author of the parent comment
+  if (payload.parentId) {
+    const parentComment = await prisma.comment.findUnique({
+      where: { id: payload.parentId },
+      select: { userId: true },
+    });
+
+    if (parentComment && parentComment.userId !== userId) {
+      await (prisma as any).notification.create({
+        data: {
+          userId: parentComment.userId,
+          title: '↩️ New Reply',
+          message: `${result.user.name} replied to your comment.`,
+        },
+      });
+    }
+  }
+
   return result;
 };
 

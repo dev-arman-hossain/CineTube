@@ -208,6 +208,31 @@ const verifySession = async (sessionId: string, userId: string) => {
     });
   }
 
+  // SEND NOTIFICATIONS
+  // 1. Notify the user
+  await (prisma as any).notification.create({
+    data: {
+      userId,
+      title: '🎉 Premium Activated!',
+      message: 'You now have full access to all premium content. Enjoy your cinematic experience!',
+    },
+  });
+
+  // 2. Notify admins
+  const admins = await prisma.user.findMany({
+    where: { role: 'ADMIN' },
+  });
+
+  if (admins.length > 0) {
+    await (prisma as any).notification.createMany({
+      data: admins.map((admin: any) => ({
+        userId: admin.id,
+        title: '💳 New Premium Upgrade!',
+        message: `${user.name} just upgraded to CineTube Premium.`,
+      })),
+    });
+  }
+
   return { success: true, isPremium: true };
 };
 

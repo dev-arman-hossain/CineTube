@@ -32,6 +32,20 @@ const createReview = async (userId: string, payload: any) => {
 
   await recalculateRating(result.mediaId);
 
+  // Notify user
+  const media = await prisma.media.findUnique({
+    where: { id: result.mediaId },
+    select: { title: true },
+  });
+
+  await (prisma as any).notification.create({
+    data: {
+      userId,
+      title: '✍️ Review Submitted',
+      message: `Your review for "${media?.title}" has been submitted for approval.`,
+    },
+  });
+
   return result;
 };
 
@@ -137,9 +151,24 @@ const approveReview = async (id: string) => {
   const review = await prisma.review.update({
     where: { id },
     data: { status: 'PUBLISHED' },
+    include: {
+      media: {
+        select: { title: true },
+      },
+    },
   });
 
   await recalculateRating(review.mediaId);
+
+  // Notify user
+  await (prisma as any).notification.create({
+    data: {
+      userId: review.userId,
+      title: '✅ Review Approved',
+      message: `Your review for "${review.media?.title}" has been approved and published!`,
+    },
+  });
+
   return review;
 };
 
@@ -169,12 +198,28 @@ const toggleLike = async (userId: string, reviewId: string) => {
     });
     return { liked: false };
   } else {
-    await prisma.like.create({
+    const newLike = await prisma.like.create({
       data: {
         userId,
         reviewId,
       },
+      include: {
+        user: { select: { name: true } },
+        review: { select: { userId: true } },
+      },
     });
+
+    // Notify review author (don't notify if liking own review)
+    if (newLike.review.userId !== userId) {
+      await (prisma as any).notification.create({
+        data: {
+          userId: newLike.review.userId,
+          title: '❤️ New Like',
+          message: `${newLike.user.name} liked your review!`,
+        },
+      });
+    }
+
     return { liked: true };
   }
 };
