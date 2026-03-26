@@ -25,4 +25,9 @@ export const AdminAppService = {
     const response = await apiClient.delete(`/admin/users/${userId}`);
     return response.data;
   },
+
+  clearCache: async () => {
+    const response = await apiClient.post('/admin/clear-cache');
+    return response.data;
+  },
 };

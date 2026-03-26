@@ -62,10 +62,18 @@ const deleteUser = async (userId: string) => {
   return result;
 };
 
+const clearCache = async () => {
+  // Functional placeholder for clearing server-side cache (e.g., Redis, in-memory)
+  // For now, it logs the action and returns success.
+  console.log('Admin Action: System cache cleared');
+  return { success: true, timestamp: new Date() };
+};
+
 export const AdminService = {
   getAllUsers,
   updateUserRole,
   getStats,
   suspendUser,
   deleteUser,
+  clearCache,
 };

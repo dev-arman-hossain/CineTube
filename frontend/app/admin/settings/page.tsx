@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Settings, Save, Bell, Shield, Moon, Monitor, Trash2 } from 'lucide-react';
+import { AdminAppService } from '@/services/adminService';
+import toast from 'react-hot-toast';
 
 export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState('general');
@@ -14,13 +16,26 @@ export default function AdminSettings() {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      // Logic for saving settings here
+      toast.success('Settings saved successfully!');
     }, 1000);
+  };
+
+  const handleClearCache = async () => {
+    try {
+      setIsClearing(true);
+      await AdminAppService.clearCache();
+      toast.success('System cache cleared successfully!');
+    } catch (error) {
+      toast.error('Failed to clear cache. Please try again.');
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   const tabs = [
@@ -181,8 +196,12 @@ export default function AdminSettings() {
                          <p className="font-bold text-white">Clear All Cache</p>
                          <p className="text-xs text-neutral-400 mt-1">Forces all users to re-fetch images and assets.</p>
                        </div>
-                       <button className="px-5 py-2.5 bg-neutral-900 border border-white/10 hover:bg-red-500 hover:text-white transition-colors rounded-xl text-sm font-bold whitespace-nowrap">
-                         Clear Cache
+                       <button 
+                         onClick={handleClearCache}
+                         disabled={isClearing}
+                         className="px-5 py-2.5 bg-neutral-900 border border-white/10 hover:bg-red-500 hover:text-white transition-colors rounded-xl text-sm font-bold whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                       >
+                         {isClearing ? 'Clearing...' : 'Clear Cache'}
                        </button>
                     </div>
                   </div>

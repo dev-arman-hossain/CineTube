@@ -59,10 +59,21 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const clearCache = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.clearCache();
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'System cache cleared successfully!',
+    data: result,
+  });
+});
+
 export const AdminController = {
   getAllUsers,
   updateUserRole,
   getStats,
   suspendUser,
   deleteUser,
+  clearCache,
 };

@@ -13,5 +13,6 @@ router.patch('/users/:id/role', AdminController.updateUserRole);
 router.patch('/users/:id/suspend', AdminController.suspendUser);
 router.delete('/users/:id', AdminController.deleteUser);
 router.get('/stats', AdminController.getStats);
+router.post('/clear-cache', AdminController.clearCache);
 
 export const AdminRoutes = router;
