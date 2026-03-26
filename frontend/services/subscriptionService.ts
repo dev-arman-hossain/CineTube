@@ -8,4 +8,10 @@ export const SubscriptionService = {
     });
     return response.data;
   },
+
+  verifySession: async (sessionId: string) => {
+    const response = await apiClient.get(`/payment/verify-session?session_id=${sessionId}`);
+    return response.data;
+  },
 };
+

@@ -161,7 +161,58 @@ const handleWebhook = async (sig: string, payload: Buffer) => {
   return { received: true };
 };
 
+const verifySession = async (sessionId: string, userId: string) => {
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+  if (session.payment_status !== 'paid') {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Payment not completed');
+  }
+
+  // Make sure this session belongs to this user
+  if (session.metadata?.userId !== userId) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Session does not belong to this user');
+  }
+
+  const type = session.metadata?.type;
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+
+  // Already updated — skip
+  if ((user as any).isPremium) return { alreadyPremium: true };
+
+  if (type === 'subscription' && session.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isPremium: true, subscriptionStatus: subscription.status } as any,
+    });
+
+    // create subscription record if not exists
+    const existing = await (prisma as any).subscription.findUnique({ where: { stripeId: subscription.id } });
+    if (!existing) {
+      await (prisma as any).subscription.create({
+        data: {
+          stripeId: subscription.id,
+          status: subscription.status,
+          priceId: subscription.items.data[0].price.id,
+          currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+          userId,
+        },
+      });
+    }
+  } else {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isPremium: true, subscriptionStatus: 'lifetime' } as any,
+    });
+  }
+
+  return { success: true, isPremium: true };
+};
+
 export const PaymentService = {
   createCheckoutSession,
   handleWebhook,
+  verifySession,
 };

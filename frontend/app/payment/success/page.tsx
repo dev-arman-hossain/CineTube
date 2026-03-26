@@ -6,6 +6,7 @@ import { CheckCircle2, ChevronRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
+import { SubscriptionService } from '@/services/subscriptionService';
 
 import { Suspense } from 'react';
 
@@ -17,7 +18,20 @@ function PaymentSuccessContent() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    fetchMe(); // Refresh user data to get premium status
+    const activate = async () => {
+      // Verify with Stripe and update isPremium in DB, then refresh user
+      if (sessionId) {
+        try {
+          await SubscriptionService.verifySession(sessionId);
+        } catch (e) {
+          // session may already be verified — safe to ignore
+        }
+      }
+      await fetchMe();
+    };
+
+    activate();
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -30,7 +44,8 @@ function PaymentSuccessContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [router, fetchMe]);
+  }, [router, fetchMe, sessionId]);
+
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center p-4 text-center">

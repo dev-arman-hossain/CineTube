@@ -18,14 +18,29 @@ const createCheckoutSession = catchAsync(async (req: Request, res: Response) => 
 
 const handleWebhook = catchAsync(async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature'] as string;
-  const payload = req.body; // Adjusted in app.ts to be Buffer for this route
+  const payload = req.body;
 
   const result = await PaymentService.handleWebhook(sig, payload);
 
   res.status(httpStatus.OK).json(result);
 });
 
+const verifySession = catchAsync(async (req: Request, res: Response) => {
+  const { session_id } = req.query as { session_id: string };
+  const userId = (req as any).user.id;
+
+  const result = await PaymentService.verifySession(session_id, userId);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Session verified',
+    data: result,
+  });
+});
+
 export const PaymentController = {
   createCheckoutSession,
   handleWebhook,
+  verifySession,
 };
+

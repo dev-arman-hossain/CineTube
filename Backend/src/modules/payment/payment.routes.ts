@@ -18,4 +18,12 @@ router.post(
   PaymentController.createCheckoutSession
 );
 
+// Called by frontend after successful payment to ensure isPremium is set
+router.get(
+  '/verify-session',
+  auth,
+  PaymentController.verifySession
+);
+
 export const PaymentRoutes = router;
+
