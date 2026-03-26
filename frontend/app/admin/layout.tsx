@@ -13,17 +13,23 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isHydrated } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'ADMIN') {
+    if (isHydrated && (!isAuthenticated || user?.role !== 'ADMIN')) {
       router.push('/');
     }
-  }, [user, isAuthenticated, router]);
+  }, [user, isAuthenticated, isHydrated, router]);
 
-  if (!user || user.role !== 'ADMIN') return null;
+  if (!isHydrated || !user || user.role !== 'ADMIN') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const sidebarLinks = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },

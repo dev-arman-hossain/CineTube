@@ -6,6 +6,7 @@ import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './middlewares/notFound';
 import { maintenanceMiddleware } from './middlewares/maintenance';
 import morgan from 'morgan';
+import config from './config';
 
 const app: Application = express();
 
@@ -19,7 +20,7 @@ app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), Paym
 app.use(express.json());
 
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3000'],
+  origin: [config.client_url as string],
   credentials: true
 }));
 
