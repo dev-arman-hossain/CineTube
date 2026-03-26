@@ -6,8 +6,15 @@ import { prisma } from '../../lib/prisma';
 import { JwtUtils } from '../../utils/jwt';
 import { sendEmail } from '../../utils/sendEmail';
 import config from '../../config';
+import { validateEmailHost } from '../../utils/isDisposableEmail';
 
 const register = async (payload: any) => {
+  // Enhanced Email Validation (Disposable/Fake)
+  const emailValidation = await validateEmailHost(payload.email);
+  if (!emailValidation.isValid) {
+    throw new AppError(httpStatus.BAD_REQUEST, emailValidation.reason || 'Invalid email domain');
+  }
+
   const existingUser = await prisma.user.findUnique({
     where: { email: payload.email },
   });
