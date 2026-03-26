@@ -272,6 +272,35 @@ const googleLogin = async (payload: { idToken: string }) => {
         role: 'USER',
       },
     });
+
+    // Create notifications safely for new Google signups
+    try {
+      // Create welcome notification for the new user
+      await (prisma as any).notification.create({
+        data: {
+          userId: user!.id,
+          title: 'Welcome to Cinetube V2!',
+          message: 'Experience the brand new cinematic dark mode and faster streaming speeds.',
+        },
+      });
+
+      // Notify admins about the new user signup
+      const admins = await prisma.user.findMany({
+        where: { role: 'ADMIN' },
+      });
+
+      if (admins.length > 0) {
+        await (prisma as any).notification.createMany({
+          data: admins.map((admin: any) => ({
+            userId: admin.id,
+            title: 'New member signup!',
+            message: `${user!.name} just joined the Cinetube family via Google.`,
+          })),
+        });
+      }
+    } catch (error) {
+      console.error('Non-critical error: Could not create Google signup notifications', error);
+    }
   }
 
   const token = JwtUtils.generateToken({

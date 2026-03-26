@@ -16,7 +16,7 @@ export default async function MoviesPage({
     genre: genre !== 'All' ? genre : undefined,
     q: q || undefined,
   });
-  
+
   const movies = response.data;
 
   return (

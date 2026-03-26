@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
@@ -21,10 +22,11 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
-        // window.location.href = '/login'; 
+        useAuthStore.getState().logout();
+        window.location.href = '/login'; 
       }
     }
     return Promise.reject(error);
