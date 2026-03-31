@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
-import { User, Camera, Loader2, Save, ArrowLeft, ImagePlus } from 'lucide-react';
+import { User, Camera, Loader2, Save, ArrowLeft, ImagePlus, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { AuthService } from '@/services/authService';
@@ -191,13 +191,26 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-2 opacity-60">
-                <label className="text-sm font-medium text-secondary-foreground ml-1">Email Address (Cannot be changed)</label>
-                <input
-                  type="email"
-                  value={user.email}
-                  disabled
-                  className="w-full bg-secondary/30 border border-white/5 rounded-xl py-3.5 px-4 cursor-not-allowed text-white"
-                />
+                <label className="text-sm font-medium text-secondary-foreground ml-1">Email Address</label>
+                <div className="w-full bg-secondary/30 border border-white/5 rounded-xl py-3.5 px-4 cursor-not-allowed text-white flex items-center gap-3">
+                   <User className="w-4 h-4 text-muted-foreground" />
+                   <span>{user.email}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 opacity-80">
+                <label className="text-sm font-medium text-secondary-foreground ml-1">Last Session Activity</label>
+                <div className="w-full bg-secondary/20 border border-white/10 rounded-xl py-3.5 px-4 flex items-center gap-3 text-white">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span className="text-sm">
+                    {user.lastLogin 
+                      ? new Date(user.lastLogin).toLocaleString('en-US', { 
+                          dateStyle: 'medium', 
+                          timeStyle: 'short' 
+                        }) 
+                      : 'Initial Session'}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-2">

@@ -40,6 +40,7 @@ const register = async (payload: any) => {
       subscriptionStatus: true,
       avatar: true,
       createdAt: true,
+      lastLogin: true,
     },
   });
 
@@ -102,7 +103,13 @@ const login = async (payload: any) => {
     role: user.role,
   });
 
-  const { password, ...userWithoutPassword } = user;
+  // Update last login
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLogin: new Date() },
+  });
+
+  const { password, ...userWithoutPassword } = updatedUser;
 
   return { user: userWithoutPassword, token };
 };
@@ -119,6 +126,7 @@ const getMe = async (email: string) => {
       isPremium: true,
       subscriptionStatus: true,
       createdAt: true,
+      lastLogin: true,
     },
   });
 
@@ -144,6 +152,7 @@ const updateProfile = async (email: string, payload: any) => {
       role: true,
       avatar: true,
       createdAt: true,
+      lastLogin: true,
     },
   });
   return result;
@@ -270,6 +279,7 @@ const googleLogin = async (payload: { idToken: string }) => {
         password: hashedPassword,
         avatar: picture,
         role: 'USER',
+        lastLogin: new Date(),
       },
     });
 
@@ -301,6 +311,13 @@ const googleLogin = async (payload: { idToken: string }) => {
     } catch (error) {
       console.error('Non-critical error: Could not create Google signup notifications', error);
     }
+  }
+
+  else {
+    user = await prisma.user.update({
+      where: { email },
+      data: { lastLogin: new Date() },
+    });
   }
 
   const token = JwtUtils.generateToken({

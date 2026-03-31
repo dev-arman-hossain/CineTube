@@ -11,6 +11,7 @@ export interface User {
   avatar?: string;
   createdAt: string;
   isPremium?: boolean;
+  lastLogin?: string;
 }
 
 export interface Media {
