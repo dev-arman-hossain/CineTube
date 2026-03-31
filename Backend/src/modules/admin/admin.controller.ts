@@ -59,6 +59,17 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUserDetails = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await AdminService.getUserDetails(id as string);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'User details and session history retrieved successfully',
+    data: result,
+  });
+});
+
 const clearCache = catchAsync(async (req: Request, res: Response) => {
   const result = await AdminService.clearCache();
 
@@ -91,6 +102,7 @@ const updateSettings = catchAsync(async (req: Request, res: Response) => {
 
 export const AdminController = {
   getAllUsers,
+  getUserDetails,
   updateUserRole,
   getStats,
   suspendUser,

@@ -55,12 +55,13 @@ model User {
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  loginTime DateTime @default(now())
-  userAgent String?
-  ipAddress String?
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loginTime  DateTime @default(now())
+  lastActive DateTime @default(now())
+  userAgent  String?
+  ipAddress  String?
 }
 
 model Subscription {

@@ -9,6 +9,7 @@ const router = Router();
 router.use(auth, requireRole('ADMIN'));
 
 router.get('/users', AdminController.getAllUsers);
+router.get('/users/:id', AdminController.getUserDetails);
 router.patch('/users/:id/role', AdminController.updateUserRole);
 router.patch('/users/:id/suspend', AdminController.suspendUser);
 router.delete('/users/:id', AdminController.deleteUser);

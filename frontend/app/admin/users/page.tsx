@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
-import { Shield, Edit2, Search, Calendar, Mail, UserCheck, UserMinus, UserX, Power, Trash2, Globe, Monitor, Smartphone } from 'lucide-react';
+import { Shield, Edit2, Search, Calendar, Mail, UserCheck, UserMinus, UserX, Power, Trash2, Globe, Monitor, Smartphone, Activity, Clock, X, Info, Loader2 } from 'lucide-react';
 import { parseUserAgent } from '@/lib/deviceInfo';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -18,6 +18,7 @@ function cn(...inputs: ClassValue[]) {
 export default function UserManagementPage() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   // Fetch Users
   const { data: users = [], isLoading } = useQuery({
@@ -28,6 +29,28 @@ export default function UserManagementPage() {
     },
     refetchInterval: 3000, // Auto refresh every 3 seconds to instantly show new registrations
   });
+
+  // Fetch Single User Details for Insight Modal
+  const { data: userDetails, isLoading: isDetailsLoading } = useQuery({
+    queryKey: ['admin', 'user', selectedUserId],
+    queryFn: async () => {
+      if (!selectedUserId) return null;
+      const resp = await AdminAppService.getUserDetails(selectedUserId);
+      return resp.data;
+    },
+    enabled: !!selectedUserId,
+    refetchInterval: 5000, 
+  });
+
+  const formatDuration = (login: string, active: string) => {
+    const diff = new Date(active).getTime() - new Date(login).getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    
+    if (hours > 0) return `${hours}h ${minutes % 60}m`;
+    if (minutes <= 0) return 'less than 1m';
+    return `${minutes}m`;
+  };
 
   // Update Role Mutation
   const updateRoleMutation = useMutation({
@@ -221,8 +244,17 @@ export default function UserManagementPage() {
 
                     <div className="grid grid-cols-3 gap-2">
                       <button 
+                        onClick={() => setSelectedUserId(user.id)}
+                        className="h-10 flex items-center justify-center gap-2 bg-primary/10 rounded-xl text-[9px] font-black uppercase tracking-widest border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-lg text-primary"
+                        title="User Insights"
+                      >
+                        <Activity className="w-3 h-3" />
+                        Stats
+                      </button>
+
+                      <button 
                         onClick={() => handleRoleChange(user.id, user.role)}
-                        className="h-10 flex items-center justify-center gap-2 bg-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-white/10 hover:bg-primary transition-all shadow-lg"
+                        className="h-10 flex items-center justify-center gap-2 bg-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-white/10 hover:bg-primary hover:text-white transition-all shadow-lg"
                         title="Change Permissions"
                       >
                         <Shield className="w-3 h-3" />
@@ -240,7 +272,7 @@ export default function UserManagementPage() {
                         title={user.isSuspended ? "Activate User" : "Suspend User"}
                       >
                         <Power className="w-3 h-3" />
-                        {user.isSuspended ? "Active" : "Suspend"}
+                        State
                       </button>
 
                       <button 
@@ -294,7 +326,12 @@ export default function UserManagementPage() {
                            )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-black text-white text-base tracking-tight group-hover:text-primary transition-colors">{user.name}</p>
+                          <p 
+                            onClick={() => setSelectedUserId(user.id)}
+                            className="font-black text-white text-base tracking-tight group-hover:text-primary transition-colors cursor-pointer"
+                          >
+                            {user.name}
+                          </p>
                           <p className="text-[10px] text-muted-foreground font-bold lowercase truncate max-w-[200px]">{user.email}</p>
                         </div>
                       </div>
@@ -353,6 +390,15 @@ export default function UserManagementPage() {
                     <td className="px-8 py-6 text-right">
                        <div className="flex items-center justify-end gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                          <button 
+                           onClick={() => setSelectedUserId(user.id)}
+                           className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all border border-primary/20 shadow-lg"
+                           title="View Detailed Analytics"
+                         >
+                           <Activity className="w-3.5 h-3.5" />
+                           Insights
+                         </button>
+
+                         <button 
                            onClick={() => handleRoleChange(user.id, user.role)}
                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all border border-white/5"
                            title="Change Role"
@@ -392,6 +438,125 @@ export default function UserManagementPage() {
            </table>
          </div>
       </div>
+      {/* User Insights Modal */}
+      <AnimatePresence>
+        {selectedUserId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedUserId(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#0a0a0a]/90 border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden backdrop-blur-xl flex flex-col max-h-[90vh]"
+            >
+              {/* Modal Header */}
+              <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/5">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                    <Activity className="w-6 h-6 text-primary animate-pulse" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black font-outfit uppercase tracking-tighter">User <span className="text-primary">Insights</span></h2>
+                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Real-time session analytics</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedUserId(null)}
+                  className="p-3 hover:bg-white/10 rounded-2xl transition-colors text-muted-foreground hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto no-scrollbar p-8 space-y-8">
+                {isDetailsLoading ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-4">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Fetching Intelligence...</p>
+                  </div>
+                ) : userDetails ? (
+                  <>
+                    {/* Top Stats Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-2">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Globe className="w-4 h-4" />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Active nodes</span>
+                        </div>
+                        <p className="text-3xl font-black">{userDetails.sessions.length}</p>
+                        <p className="text-[10px] text-muted-foreground font-bold">Concurrent locations</p>
+                      </div>
+                      <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-2">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Clock className="w-4 h-4" />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Last Stay</span>
+                        </div>
+                        <p className="text-3xl font-black">
+                          {userDetails.sessions?.[0] ? formatDuration(userDetails.sessions[0].loginTime, userDetails.sessions[0].lastActive) : '0m'}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground font-bold">Active duration</p>
+                      </div>
+                      <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-2">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Member Since</span>
+                        </div>
+                        <p className="text-xl font-black truncate">{new Date(userDetails.createdAt).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-muted-foreground font-bold italic">{userDetails.isPremium ? 'Premium Identity' : 'Standard Identity'}</p>
+                      </div>
+                    </div>
+
+                    {/* Session Log */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 px-2">
+                        <Info className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-black uppercase tracking-widest">Session History</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {userDetails.sessions.map((session: any) => (
+                          <div key={session.id} className="bg-white/[0.02] p-4 rounded-2xl border border-white/5 flex items-center justify-between group hover:bg-white/[0.05] transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center border border-white/10">
+                                {parseUserAgent(session.userAgent).type === 'mobile' ? <Smartphone className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-black truncate max-w-[200px]">{parseUserAgent(session.userAgent).os} ({parseUserAgent(session.userAgent).model})</p>
+                                <p className="text-[10px] text-muted-foreground font-mono">{session.ipAddress}</p>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-[10px] font-black text-primary uppercase">Stayed {formatDuration(session.loginTime, session.lastActive)}</p>
+                              <p className="text-[9px] text-muted-foreground font-bold uppercase">{new Date(session.loginTime).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-20 text-muted-foreground">Target profile offline or non-existent</div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 bg-white/5 border-t border-white/5 flex justify-end">
+                <button 
+                  onClick={() => setSelectedUserId(null)}
+                  className="px-8 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
+                >
+                  Terminate View
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

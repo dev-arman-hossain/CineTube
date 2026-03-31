@@ -175,6 +175,20 @@ const getMe = async (email: string) => {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
+  // Effortlessly refresh the 'lastActive' of the most recent session
+  // This allows accurate duration tracking in the Admin Dashboard
+  const latestSession = await prisma.session.findFirst({
+    where: { userId: user.id },
+    orderBy: { loginTime: 'desc' }
+  });
+
+  if (latestSession) {
+    await prisma.session.update({
+      where: { id: latestSession.id },
+      data: { lastActive: new Date() }
+    });
+  }
+
   return user;
 };
 

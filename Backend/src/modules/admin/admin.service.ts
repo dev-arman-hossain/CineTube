@@ -1,5 +1,7 @@
 import { Role } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
+import httpStatus from 'http-status';
+import AppError from '../../errors/AppError';
 import { getSystemSettings, updateSystemSettings, SystemSettings } from '../../utils/settingsHelper';
 
 const getAllUsers = async () => {
@@ -67,6 +69,32 @@ const deleteUser = async (userId: string) => {
   return result;
 };
 
+const getUserDetails = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      avatar: true,
+      isSuspended: true,
+      createdAt: true,
+      isPremium: true,
+      subscriptionStatus: true,
+      sessions: {
+        orderBy: { loginTime: 'desc' },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  return user;
+};
+
 const clearCache = async () => {
   // Functional placeholder for clearing server-side cache (e.g., Redis, in-memory)
   // For now, it logs the action and returns success.
@@ -84,6 +112,7 @@ const updateSettings = async (data: Partial<SystemSettings>) => {
 
 export const AdminService = {
   getAllUsers,
+  getUserDetails,
   updateUserRole,
   getStats,
   suspendUser,

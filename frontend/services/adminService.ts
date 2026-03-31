@@ -11,6 +11,11 @@ export const AdminAppService = {
     return response.data;
   },
 
+  getUserDetails: async (userId: string) => {
+    const response = await apiClient.get(`/admin/users/${userId}`);
+    return response.data;
+  },
+
   updateUserRole: async (userId: string, role: string) => {
     const response = await apiClient.patch(`/admin/users/${userId}/role`, { role });
     return response.data;
