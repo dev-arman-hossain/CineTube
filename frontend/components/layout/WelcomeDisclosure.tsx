@@ -14,6 +14,8 @@ export default function WelcomeDisclosure() {
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: 5000,
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
+    refetchInterval: 2000, // Explicitly re-enable heartbeat for stay-time tracking
   });
 
   useEffect(() => {

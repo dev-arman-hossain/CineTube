@@ -27,6 +27,7 @@ export default function UserManagementPage() {
       const resp = await AdminAppService.getAllUsers();
       return resp.data;
     },
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
     refetchInterval: 3000, // Auto refresh every 3 seconds to instantly show new registrations
   });
 

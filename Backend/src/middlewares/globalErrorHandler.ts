@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import config from '../config';
+import AppError from '../errors/AppError';
 
 const globalErrorHandler = (
   err: any,
@@ -12,7 +13,16 @@ const globalErrorHandler = (
   let message = 'Something went wrong!';
   let errorMessages: any[] = [];
 
-  if (err?.name === 'ZodError') {
+  if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+    errorMessages = [
+      {
+        path: '',
+        message: err.message,
+      },
+    ];
+  } else if (err?.name === 'ZodError') {
     statusCode = 400;
     message = 'Validation Error';
     errorMessages = err.issues.map((issue: any) => {
