@@ -51,6 +51,16 @@ model User {
   notifications Notification[]
   subscriptions Subscription[]
   payments      Payment[]
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loginTime DateTime @default(now())
+  userAgent String?
+  ipAddress String?
 }
 
 model Subscription {

@@ -14,7 +14,9 @@ const register = catchAsync(async (req: Request, res: Response) => {
 });
 
 const googleLogin = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.googleLogin(req.body);
+  const userAgent = req.headers['user-agent'] as string;
+  const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip;
+  const result = await AuthService.googleLogin(req.body, { userAgent, ipAddress });
 
   res.status(httpStatus.OK).json({
     success: true,
@@ -24,7 +26,9 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const login = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.login(req.body);
+  const userAgent = req.headers['user-agent'] as string;
+  const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip;
+  const result = await AuthService.login(req.body, { userAgent, ipAddress });
 
   res.status(httpStatus.OK).json({
     success: true,

@@ -12,6 +12,15 @@ export interface User {
   createdAt: string;
   isPremium?: boolean;
   lastLogin?: string;
+  sessions?: Session[];
+}
+
+export interface Session {
+  id: string;
+  userId: string;
+  loginTime: string;
+  userAgent?: string;
+  ipAddress?: string;
 }
 
 export interface Media {

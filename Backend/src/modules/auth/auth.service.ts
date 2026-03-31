@@ -82,7 +82,7 @@ const register = async (payload: any) => {
   return { user: newUser, token };
 };
 
-const login = async (payload: any) => {
+const login = async (payload: any, options?: { userAgent?: string; ipAddress?: string }) => {
   const user = await prisma.user.findUnique({
     where: { email: payload.email },
   });
@@ -103,13 +103,50 @@ const login = async (payload: any) => {
     role: user.role,
   });
 
-  // Update last login
-  const updatedUser = await prisma.user.update({
-    where: { id: user.id },
-    data: { lastLogin: new Date() },
+  // Update last login and sessions
+  await prisma.$transaction(async (tx) => {
+    // 1. Update last login
+    await tx.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    });
+
+    // 2. Create new session
+    await tx.session.create({
+      data: {
+        userId: user.id,
+        userAgent: options?.userAgent,
+        ipAddress: options?.ipAddress,
+      },
+    });
+
+    // 3. Prune old sessions (keep only top 10)
+    const sessions = await tx.session.findMany({
+      where: { userId: user.id },
+      orderBy: { loginTime: 'desc' },
+      select: { id: true },
+    });
+
+    if (sessions.length > 10) {
+      const idsToDelete = sessions.slice(10).map((s: any) => s.id);
+      await tx.session.deleteMany({
+        where: { id: { in: idsToDelete } },
+      });
+    }
   });
 
-  const { password, ...userWithoutPassword } = updatedUser;
+  // Fetch final user with sessions
+  const updatedUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: {
+      sessions: {
+        orderBy: { loginTime: 'desc' },
+        take: 10,
+      },
+    },
+  });
+
+  const { password, ...userWithoutPassword } = updatedUser as any;
 
   return { user: userWithoutPassword, token };
 };
@@ -127,6 +164,10 @@ const getMe = async (email: string) => {
       subscriptionStatus: true,
       createdAt: true,
       lastLogin: true,
+      sessions: {
+        orderBy: { loginTime: 'desc' },
+        take: 10,
+      },
     },
   });
 
@@ -153,6 +194,10 @@ const updateProfile = async (email: string, payload: any) => {
       avatar: true,
       createdAt: true,
       lastLogin: true,
+      sessions: {
+        orderBy: { loginTime: 'desc' },
+        take: 10,
+      },
     },
   });
   return result;
@@ -244,7 +289,7 @@ const resetPassword = async (payload: any) => {
   throw new AppError(httpStatus.NOT_IMPLEMENTED, 'Password reset is temporarily disabled for maintenance.');
 };
 
-const googleLogin = async (payload: { idToken: string }) => {
+const googleLogin = async (payload: { idToken: string }, options?: { userAgent?: string; ipAddress?: string }) => {
   const { OAuth2Client } = require('google-auth-library');
   const client = new OAuth2Client(config.google_client_id);
 
@@ -285,20 +330,15 @@ const googleLogin = async (payload: { idToken: string }) => {
 
     // Create notifications safely for new Google signups
     try {
-      // Create welcome notification for the new user
       await (prisma as any).notification.create({
         data: {
-          userId: user!.id,
+          userId: user.id,
           title: 'Welcome to Cinetube V2!',
           message: 'Experience the brand new cinematic dark mode and faster streaming speeds.',
         },
       });
 
-      // Notify admins about the new user signup
-      const admins = await prisma.user.findMany({
-        where: { role: 'ADMIN' },
-      });
-
+      const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
       if (admins.length > 0) {
         await (prisma as any).notification.createMany({
           data: admins.map((admin: any) => ({
@@ -313,21 +353,51 @@ const googleLogin = async (payload: { idToken: string }) => {
     }
   }
 
-  else {
-    user = await prisma.user.update({
-      where: { email },
+  // Handle session and update user state
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: user!.id },
       data: { lastLogin: new Date() },
     });
-  }
 
-  const token = JwtUtils.generateToken({
-    id: user.id,
-    email: user.email,
-    role: user.role,
+    await tx.session.create({
+      data: {
+        userId: user!.id,
+        userAgent: options?.userAgent,
+        ipAddress: options?.ipAddress,
+      },
+    });
+
+    const sessionsCount = await tx.session.count({ where: { userId: user!.id } });
+    if (sessionsCount > 10) {
+      const oldestSessions = await tx.session.findMany({
+        where: { userId: user!.id },
+        orderBy: { loginTime: 'asc' },
+        take: sessionsCount - 10,
+      });
+      await tx.session.deleteMany({
+        where: { id: { in: oldestSessions.map(s => s.id) } },
+      });
+    }
   });
 
-  const { password, ...userWithoutPassword } = user;
+  const finalUser = await prisma.user.findUnique({
+    where: { id: user!.id },
+    include: {
+      sessions: {
+        orderBy: { loginTime: 'desc' },
+        take: 10,
+      },
+    },
+  });
 
+  const token = JwtUtils.generateToken({
+    id: finalUser!.id,
+    email: finalUser!.email,
+    role: finalUser!.role,
+  });
+
+  const { password, ...userWithoutPassword } = finalUser as any;
   return { user: userWithoutPassword, token };
 };
 
