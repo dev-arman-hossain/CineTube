@@ -142,21 +142,21 @@ export default function ProfilePage() {
             />
             <button
               onClick={() => setActiveTab('profile')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 relative z-10 transition-colors duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-3.5 relative z-10 transition-colors duration-300 ${
                 activeTab === 'profile' ? 'text-white' : 'text-secondary-foreground hover:text-white'
               }`}
             >
-              <User className={`w-4 h-4 transition-transform ${activeTab === 'profile' ? 'scale-110' : ''}`} />
-              <span className="text-sm font-bold uppercase tracking-widest font-outfit">Identity</span>
+              <User className={`w-3.5 h-3.5 md:w-4 md:h-4 transition-transform ${activeTab === 'profile' ? 'scale-110' : ''}`} />
+              <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest font-outfit">Identity</span>
             </button>
             <button
               onClick={() => setActiveTab('security')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 relative z-10 transition-colors duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-3.5 relative z-10 transition-colors duration-300 ${
                 activeTab === 'security' ? 'text-white' : 'text-secondary-foreground hover:text-white'
               }`}
             >
-              <Shield className={`w-4 h-4 transition-transform ${activeTab === 'security' ? 'scale-110' : ''}`} />
-              <span className="text-sm font-bold uppercase tracking-widest font-outfit">Security</span>
+              <Shield className={`w-3.5 h-3.5 md:w-4 md:h-4 transition-transform ${activeTab === 'security' ? 'scale-110' : ''}`} />
+              <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest font-outfit">Security</span>
             </button>
           </div>
 
@@ -272,14 +272,14 @@ export default function ProfilePage() {
                        <Activity className="w-4 h-4 text-primary" />
                        Last Session Status
                     </label>
-                    <div className="w-full bg-secondary/20 border border-white/10 rounded-xl py-5 px-6 flex items-center justify-between shadow-inner">
+                    <div className="w-full bg-secondary/20 border border-white/10 rounded-xl py-5 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4 shadow-inner">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-primary/20 rounded-2xl">
+                        <div className="p-3 bg-primary/20 rounded-2xl shrink-0">
                            <Clock className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                           <p className="text-xs text-secondary-foreground uppercase tracking-wider font-bold mb-1">Time Spotted</p>
-                           <p className="text-xl font-bold text-white uppercase tracking-tighter">
+                           <p className="text-[10px] md:text-xs text-secondary-foreground uppercase tracking-wider font-bold mb-1">Time Spotted</p>
+                           <p className="text-lg md:text-xl font-bold text-white uppercase tracking-tighter leading-tight">
                             {user.lastLogin 
                               ? new Date(user.lastLogin).toLocaleString('en-US', { 
                                   dateStyle: 'medium', 
@@ -289,9 +289,9 @@ export default function ProfilePage() {
                            </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                      <div className="flex items-center self-start sm:self-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                         <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Logged In</span>
+                         <span className="text-[10px] md:text-xs font-bold text-emerald-500 uppercase tracking-widest">Logged In</span>
                       </div>
                     </div>
                   </div>
@@ -310,27 +310,27 @@ export default function ProfilePage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-center justify-between p-4 rounded-2xl bg-secondary/10 border border-white/5 hover:bg-secondary/20 transition-all group"
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-secondary/10 border border-white/5 hover:bg-secondary/20 transition-all group gap-4"
                           >
                             <div className="flex items-center gap-4">
-                              <div className="p-2.5 rounded-xl bg-white/5 text-secondary-foreground group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                              <div className="p-2.5 rounded-xl bg-white/5 text-secondary-foreground group-hover:bg-primary group-hover:text-white transition-all duration-300 shrink-0">
                                 <Monitor className="w-4 h-4" />
                               </div>
-                              <div>
-                                <p className="text-sm font-medium text-white group-hover:text-primary transition-colors">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-white group-hover:text-primary transition-colors truncate">
                                   {new Date(session.loginTime).toLocaleString('en-US', { 
                                     dateStyle: 'medium', 
                                     timeStyle: 'short' 
                                   })}
                                 </p>
-                                <p className="text-xs text-secondary-foreground flex items-center gap-1.5 mt-0.5">
+                                <p className="text-[10px] md:text-xs text-secondary-foreground flex items-center gap-1.5 mt-0.5 truncate">
                                   <Globe className="w-3 h-3 opacity-50" />
-                                  {session.ipAddress || 'Unknown IP'} • {session.userAgent ? (session.userAgent.includes('Windows') ? 'Windows Pro' : session.userAgent.includes('Mac') ? 'macOS Safari' : 'Mobile/Tablet') : 'Unknown Context'}
+                                  {session.ipAddress || 'Unknown IP'} • {session.userAgent ? (session.userAgent.includes('Windows') ? 'Windows' : session.userAgent.includes('Mac') ? 'macOS' : 'Mobile') : 'Unknown Context'}
                                 </p>
                               </div>
                             </div>
                             {index === 0 && (
-                              <div className="flex flex-col items-end gap-1">
+                              <div className="flex flex-col items-start sm:items-end gap-1 shrink-0">
                                 <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
                                   Primary
                                 </span>
