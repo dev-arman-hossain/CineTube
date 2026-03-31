@@ -162,6 +162,7 @@ const getMe = async (email: string) => {
       avatar: true,
       isPremium: true,
       subscriptionStatus: true,
+      hasSeenWelcome: true,
       createdAt: true,
       lastLogin: true,
       sessions: {
@@ -190,6 +191,14 @@ const getMe = async (email: string) => {
   }
 
   return user;
+};
+
+const markWelcomeSeen = async (email: string) => {
+  const result = await prisma.user.update({
+    where: { email },
+    data: { hasSeenWelcome: true },
+  });
+  return result;
 };
 
 // Forgot Password logic as per guide but adapting to Prisma (adding fields if needed)
@@ -428,6 +437,7 @@ export const AuthService = {
   login,
   getMe,
   updateProfile,
+  markWelcomeSeen,
   forgotPassword,
   resetPassword,
   googleLogin,

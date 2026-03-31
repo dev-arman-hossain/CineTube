@@ -107,6 +107,16 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const markWelcomeSeen = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.markWelcomeSeen((req as any).user.email);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Welcome message acknowledged',
+    data: result,
+  });
+});
+
 export const AuthController = {
   register,
   login,
@@ -116,4 +126,5 @@ export const AuthController = {
   forgotPassword,
   resetPassword,
   googleLogin,
+  markWelcomeSeen,
 };

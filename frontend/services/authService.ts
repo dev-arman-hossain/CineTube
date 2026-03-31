@@ -45,5 +45,10 @@ export const AuthService = {
     const response = await apiClient.post('/auth/reset-password', data);
     return response.data;
   },
+
+  markWelcomeSeen: async (): Promise<any> => {
+    const response = await apiClient.patch('/auth/welcome-seen');
+    return response.data.data;
+  },
 };
 

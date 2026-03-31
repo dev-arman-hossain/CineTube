@@ -47,4 +47,6 @@ router.post(
   AuthController.resetPassword,
 );
 
+router.patch('/welcome-seen', auth, AuthController.markWelcomeSeen);
+
 export const AuthRoutes = router;
