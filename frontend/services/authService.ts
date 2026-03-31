@@ -22,6 +22,11 @@ export const AuthService = {
     return response.data.data;
   },
 
+  getMe: async (): Promise<any> => {
+    const response = await apiClient.get('/auth/me');
+    return response.data.data;
+  },
+
   uploadAvatar: async (file: File): Promise<any> => {
     const formData = new FormData();
     formData.append('image', file);

@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/authStore';
 import { AuthService } from '@/services/authService';
 import Link from 'next/link';
 import { useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -39,6 +40,7 @@ export default function ProfilePage() {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -48,27 +50,45 @@ export default function ProfilePage() {
     },
   });
 
+  // TanStack Query for live profile data
+  const { data: userData, isLoading: isUserLoading } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => AuthService.getMe(),
+    enabled: mounted && isAuthenticated,
+  });
+
+  // Sync the form inputs and store whenever fresh data arrives
+  useEffect(() => {
+    if (userData) {
+      reset({
+        name: userData.name,
+        avatar: userData.avatar || '',
+      });
+      setAvatarPreview(userData.avatar || null);
+      updateUser(userData);
+    }
+  }, [userData, reset, updateUser]);
+
   useEffect(() => {
     if (!mounted) return;
     if (!isAuthenticated) {
       router.push('/login');
-    } else {
-      // Fetch latest user data on mount
-      fetchMe().catch(() => {
-        router.push('/login');
-      });
     }
-  }, [mounted, isAuthenticated, router, fetchMe]);
+  }, [mounted, isAuthenticated, router]);
 
-  // Sync avatarPreview with the store user avatar on mount
+  // Sync avatarPreview with the store user avatar on initial hydration
   useEffect(() => {
-    if (user?.avatar) setAvatarPreview(user.avatar);
-  }, [user?.avatar]);
+    if (user?.avatar && !avatarPreview) setAvatarPreview(user.avatar);
+  }, [user?.avatar, avatarPreview]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
     try {
-      const result = await AuthService.updateProfile(data);
+      // Create a copy of the data and remove empty avatar to prevent backend overwrite
+      const updateData = { ...data };
+      if (!updateData.avatar) delete updateData.avatar;
+
+      const result = await AuthService.updateProfile(updateData);
       updateUser(result);
       toast.success('Profile updated successfully!');
     } catch (error: any) {
@@ -113,7 +133,13 @@ export default function ProfilePage() {
     }
   };
 
-  if (!mounted || !user) return null;
+  if (!mounted || !user || isUserLoading || !userData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
 
   return (
@@ -280,8 +306,8 @@ export default function ProfilePage() {
                         <div>
                            <p className="text-[10px] md:text-xs text-secondary-foreground uppercase tracking-wider font-bold mb-1">Time Spotted</p>
                            <p className="text-lg md:text-xl font-bold text-white uppercase tracking-tighter leading-tight">
-                            {user.lastLogin 
-                              ? new Date(user.lastLogin).toLocaleString('en-US', { 
+                            {userData.lastLogin 
+                              ? new Date(userData.lastLogin).toLocaleString('en-US', { 
                                   dateStyle: 'medium', 
                                   timeStyle: 'short' 
                                 }) 
@@ -303,8 +329,8 @@ export default function ProfilePage() {
                     </div>
                     
                     <div className="space-y-3">
-                      {user.sessions && user.sessions.length > 0 ? (
-                        user.sessions.map((session, index) => (
+                      {userData.sessions && userData.sessions.length > 0 ? (
+                        userData.sessions.map((session: any, index: number) => (
                           <motion.div 
                             key={session.id}
                             initial={{ opacity: 0, y: 10 }}

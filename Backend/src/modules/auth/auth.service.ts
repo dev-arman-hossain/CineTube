@@ -183,9 +183,17 @@ const getMe = async (email: string) => {
 // For now, I'll implement the logic assuming fields exist or I will add them to schema.
 
 const updateProfile = async (email: string, payload: any) => {
+  // Filter out empty strings/nulls to prevent accidental overwrites (e.g. from empty form inputs)
+  const filteredPayload = Object.fromEntries(
+    Object.entries(payload).filter(([key, value]) => {
+      // Only keep non-empty, non-null values
+      return value !== '' && value !== null && value !== undefined;
+    })
+  );
+
   const result = await prisma.user.update({
     where: { email },
-    data: payload,
+    data: filteredPayload,
     select: {
       id: true,
       name: true,
