@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminAppService } from '@/services/adminService';
-import { Shield, Edit2, Search, Calendar, Mail, UserCheck, UserMinus, UserX, Power, Trash2 } from 'lucide-react';
+import { Shield, Edit2, Search, Calendar, Mail, UserCheck, UserMinus, UserX, Power, Trash2, Globe, Monitor, Smartphone } from 'lucide-react';
+import { parseUserAgent } from '@/lib/deviceInfo';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -194,6 +195,30 @@ export default function UserManagementPage() {
                        </div>
                     </div>
 
+                    {/* Technical Identity Card */}
+                    <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 space-y-3">
+                       <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                             <Globe className="w-3 h-3 text-primary" />
+                             <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground">Network Node</span>
+                          </div>
+                          <p className="text-[10px] font-black font-mono text-primary">{user.sessions?.[0]?.ipAddress || '0.0.0.0'}</p>
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                             {user.sessions?.[0]?.userAgent && parseUserAgent(user.sessions[0].userAgent).type === 'mobile' ? (
+                               <Smartphone className="w-3 h-3 text-primary" />
+                             ) : (
+                               <Monitor className="w-3 h-3 text-primary" />
+                             )}
+                             <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground">Access Device</span>
+                          </div>
+                          <p className="text-[10px] font-black truncate max-w-[150px]">
+                            {user.sessions?.[0]?.userAgent ? `${parseUserAgent(user.sessions[0].userAgent).os} (${parseUserAgent(user.sessions[0].userAgent).model})` : 'Unknown Access'}
+                          </p>
+                       </div>
+                    </div>
+
                     <div className="grid grid-cols-3 gap-2">
                       <button 
                         onClick={() => handleRoleChange(user.id, user.role)}
@@ -239,6 +264,7 @@ export default function UserManagementPage() {
              <thead>
                <tr className="bg-white/[0.03] text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground border-b border-white/5">
                  <th className="px-8 py-6">Unique Identity</th>
+                 <th className="px-8 py-6">Connectivity</th>
                  <th className="px-8 py-6">Account Status</th>
                  <th className="px-8 py-6 text-center">System Authority</th>
                  <th className="px-8 py-6">Timeline</th>
@@ -270,6 +296,26 @@ export default function UserManagementPage() {
                         <div className="min-w-0">
                           <p className="font-black text-white text-base tracking-tight group-hover:text-primary transition-colors">{user.name}</p>
                           <p className="text-[10px] text-muted-foreground font-bold lowercase truncate max-w-[200px]">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8 py-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-muted-foreground group-hover:text-primary transition-colors">
+                          <Globe className="w-3 h-3" />
+                          <span className="text-[11px] font-black font-mono tracking-tighter">{user.sessions?.[0]?.ipAddress || 'Not Recorded'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground group-hover:text-white transition-colors">
+                           {user.sessions?.[0]?.userAgent && parseUserAgent(user.sessions[0].userAgent).type === 'mobile' ? (
+                             <Smartphone className="w-3 h-3" />
+                           ) : (
+                             <Monitor className="w-3 h-3" />
+                           )}
+                           <span className="text-[10px] font-bold truncate max-w-[150px]">
+                             {user.sessions?.[0]?.userAgent 
+                               ? `${parseUserAgent(user.sessions[0].userAgent).os} (${parseUserAgent(user.sessions[0].userAgent).model})` 
+                               : 'Unknown Origin'}
+                           </span>
                         </div>
                       </div>
                     </td>

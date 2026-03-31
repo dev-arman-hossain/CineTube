@@ -12,6 +12,10 @@ const getAllUsers = async () => {
       avatar: true,
       isSuspended: true,
       createdAt: true,
+      sessions: {
+        orderBy: { loginTime: 'desc' },
+        take: 1,
+      },
     },
     orderBy: { createdAt: 'desc' },
   });
